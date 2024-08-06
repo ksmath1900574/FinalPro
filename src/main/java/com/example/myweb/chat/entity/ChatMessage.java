@@ -31,7 +31,5 @@ public class ChatMessage {
     private String fileName;
     private String fileUrl;
 
-    private boolean isRead = false;
-
-
+    private boolean isRead = false;  // 읽음 상태 필드 추가
 }

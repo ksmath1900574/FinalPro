@@ -114,4 +114,12 @@ public class ChatService {
         chatRoom.setReceiver(receiver);
         return chatRoomRepository.save(chatRoom);
     }
+    
+    public int getUnreadMessageCount(String nickname) {
+        return chatMessageRepository.countUnreadMessagesByReceiverNickname(nickname);
+    }
+    public List<ChatMessageDTO> getAllNotifications(String nickname) {
+        List<ChatMessage> messages = chatMessageRepository.findByReceiver_Nickname(nickname);
+        return messages.stream().map(ChatMessageDTO::toChatMessageDTO).collect(Collectors.toList());
+    }
 }

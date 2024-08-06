@@ -22,8 +22,8 @@ public class ChatMessageDTO {
     private UserDTO receiver;
     private String fileName;
     private String fileUrl;
-    
-    
+    private boolean isRead;  // 읽음 상태 필드 추가
+
     // 엔티티를 dto로 변환
     public static ChatMessageDTO toChatMessageDTO(ChatMessage chatMessage) {
         ChatMessageDTO chatMessageDTO = new ChatMessageDTO();
@@ -34,7 +34,12 @@ public class ChatMessageDTO {
         chatMessageDTO.setReceiver(UserDTO.toUserDTO(chatMessage.getReceiver()));
         chatMessageDTO.setFileName(chatMessage.getFileName());
         chatMessageDTO.setFileUrl(chatMessage.getFileUrl());
+        chatMessageDTO.setRead(chatMessage.isRead());  // 읽음 상태 설정
 
         return chatMessageDTO;
+    }
+
+    public void setRead(boolean isRead) {
+        this.isRead = isRead;
     }
 }
