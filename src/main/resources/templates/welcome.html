@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>환영 페이지</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        .notification-icon {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .notification-icon img {
+            width: 30px;
+            height: 30px;
+        }
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 5px;
+            font-size: 12px;
+            display: none;
+        }
+        .notification-list {
+            position: absolute;
+            left: 0; /* 왼쪽으로 고정 */
+            top: 35px; /* 아이콘 바로 아래 */
+            background: white;
+            border: 1px solid #ccc;
+            width: 300px;
+            max-height: 300px; /* 최대 높이 설정 */
+            overflow-y: auto; /* 스크롤바 추가 */
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .notification-list .notification {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .notification-list .notification.unread {
+            background: #f9f9f9;
+        }
+        .notification-list .notification.read {
+            background: #fff;
+        }
+        .page-notification {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #444;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 200;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-icon" id="notification-icon">
+        <img src="/img/bell.png" alt="Notifications">
+        <div class="notification-count" id="notification-count">0</div>
+        <div class="notification-list" id="notification-list"></div>
+    </div>
+    <h1>환영합니다, <span id="nickname" th:text="${nickname}"></span>님!</h1>
+	<h2>다른 사용자들:</h2>
+	<ul>
+	    <li th:each="user : ${users}" th:if="${user.nickname} != ${nickname}">
+	        <span class="user-name" th:data-nickname="${user.nickname}" th:text="${user.nickname}" style="cursor: pointer;"></span>
+	    </li>
+	</ul>
+    <div style="margin-top: 20px;">
+        <a id="chat-list-link" href="javascript:void(0);">채팅 목록으로 이동</a>
+    </div>
+    <div id="page-notification" class="page-notification"></div>
+    
+    
+    <a href="/freeboard/boardList">자유게시판 보기</a> <!-- 자유게시판 링크 추가 -->
+    <a href="/freeboard/paging">자유게시판으로 이동</a>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        console.log('Notification permission granted.');
+                    } else {
+                        console.log('Notification permission denied.');
+                    }
+                }).catch(function(error) {
+                    console.error('Notification permission request failed:', error);
+                });
+            }
+        });
+
+        function openChat(receiver, notificationItem) {
+            const sender = document.getElementById('nickname').innerText;
+            const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'ChatWindow', 'width=800,height=600');
+            chatWindow.focus();
+
+            // 읽음 처리 로직 추가
+            markAsRead(notificationItem);
+        }
+
+        $(document).ready(function() {
+            const nickname = $('#nickname').text();
+
+            $('.user-name').click(function() {
+                const receiver = $(this).data('nickname');
+                openChat(receiver, null);
+            });
+
+            $('#chat-list-link').click(function() {
+                const sender = document.getElementById('nickname').innerText;
+                window.location.href = `/chat?sender=${encodeURIComponent(sender)}&receiver=`;
+            });
+
+            $('#notification-icon').click(function() {
+                const notificationList = $('#notification-list');
+                notificationList.toggle();
+                updateNotificationCount();
+            });
+
+            connect();
+        });
+
+        function incrementNotificationCount() {
+            const notificationCountElement = document.getElementById('notification-count');
+            let notificationCount = parseInt(notificationCountElement.textContent) || 0;
+            notificationCount++;
+            notificationCountElement.textContent = notificationCount;
+            notificationCountElement.style.display = 'block';
+        }
+
+        function updateNotificationCount() {
+            const unreadNotifications = document.querySelectorAll('.notification.unread').length;
+            const notificationCountElement = document.getElementById('notification-count');
+            notificationCountElement.textContent = unreadNotifications;
+            notificationCountElement.style.display = unreadNotifications > 0 ? 'block' : 'none';
+        }
+
+        function onNotificationReceived(payload) {
+            const message = JSON.parse(payload.body);
+            if (message.sender.nickname !== $('#nickname').text()) {
+                addNotificationToList(message);
+                updateNotificationCount();
+                showBrowserNotification(message);
+                showPageNotification(message);
+            }
+        }
+
+        function showBrowserNotification(message) {
+            if (Notification.permission === "granted") {
+                const notification = new Notification(`새 메시지: ${message.sender.nickname}`, {
+                    body: message.content,
+                    icon: '/img/bell.png'
+                });
+                notification.onclick = function () {
+                    window.focus();
+                };
+            }
+        }
+
+        function showPageNotification(message) {
+            const pageNotification = document.getElementById('page-notification');
+            pageNotification.textContent = `새 메시지: ${message.sender.nickname} - ${message.content}`;
+            pageNotification.style.display = 'block';
+            setTimeout(() => {
+                pageNotification.style.display = 'none';
+            }, 5000);
+        }
+
+        function addNotificationToList(message) {
+            const notificationList = document.getElementById('notification-list');
+            const notificationItem = document.createElement('div');
+            notificationItem.classList.add('notification', 'unread');
+            notificationItem.innerHTML = `
+                <strong>${message.sender.nickname}</strong><br>
+                <span>${message.content}</span>
+            `;
+            notificationItem.onclick = function () {
+                openChat(message.sender.nickname, notificationItem);
+            };
+            notificationList.prepend(notificationItem);
+        }
+
+        function markAsRead(notificationItem) {
+            if (notificationItem) {
+                notificationItem.classList.remove('unread');
+                notificationItem.classList.add('read');
+                updateNotificationCount();
+            }
+        }
+
+        let stompClient = null;
+
+        function connect() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, onConnected, onError);
+        }
+
+        function onConnected() {
+            stompClient.subscribe('/topic/notifications/' + $('#nickname').text(), onNotificationReceived);
+        }
+
+        function onError(error) {
+            console.error('Could not connect to WebSocket server. Please refresh this page to try again!');
+        }
+    </script>
+    
+</body>
+</html>

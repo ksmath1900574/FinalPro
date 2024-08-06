@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>회원가입</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var loginidChecked = false;
+        var emailChecked = false;
+
+        function isValidEmail(email) {
+            var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            return emailPattern.test(email);
+        }
+
+        function checkDuplicate(field, callback) {
+            var value = $('#' + field).val();
+            if (field === 'email' && !isValidEmail(value)) {
+                $('#' + field + '-error').text('올바른 이메일 형식을 입력하세요.').css('color', 'red');
+                callback(true); // 중복된 것으로 처리하여 회원가입을 막음
+                return;
+            }
+
+            $.ajax({
+                url: '/check-duplicate',
+                type: 'GET',
+                data: {
+                    field: field,
+                    value: value
+                },
+                success: function(response) {
+                    var message = field + '이(가) 사용 가능합니다.';
+                    if (response.exists) {
+                        message = field + '이(가) 이미 사용 중입니다.';
+                        $('#' + field + '-error').text(message).css('color', 'red');
+                        if (field === 'loginid') {
+                            loginidChecked = false;
+                        }
+                        if (field === 'email') {
+                            emailChecked = false;
+                        }
+                    } else {
+                        $('#' + field + '-error').text(message).css('color', 'green');
+                        if (field === 'loginid') {
+                            loginidChecked = true;
+                        }
+                        if (field === 'email') {
+                            emailChecked = true;
+                        }
+                    }
+                    callback(response.exists);
+                }
+            });
+        }
+
+        function validateForm(event) {
+            event.preventDefault();
+            if (!loginidChecked) {
+                alert('아이디 중복확인을 해주세요.');
+                return;
+            }
+            if (!emailChecked) {
+                alert('이메일 중복확인을 해주세요.');
+                return;
+            }
+
+            // 별명 중복 확인
+            checkDuplicate('nickname', function(nicknameExists) {
+                if (!nicknameExists) {
+                    $('form').unbind('submit').submit();
+                } else {
+                    alert('별명이 이미 사용 중입니다.');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $('form').on('submit', validateForm);
+            $('#nickname').on('input', function() {
+                checkDuplicate('nickname', function() {});
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>회원가입</h1>
+    <form th:action="@{/signup}" method="post">
+        <div>
+            <label>아이디:</label>
+            <input type="text" id="loginid" name="loginid" required>
+            <button type="button" onclick="checkDuplicate('loginid', function() {})">아이디 중복확인</button>
+            <span id="loginid-error"></span>
+        </div>
+        <div>
+            <label>이메일:</label>
+            <input type="email" id="email" name="email" required>
+            <button type="button" onclick="checkDuplicate('email', function() {})">이메일 중복확인</button>
+            <span id="email-error"></span>
+        </div>
+        <div>
+            <label>비밀번호:</label>
+            <input type="password" name="pw" required>
+        </div>
+        <div>
+            <label>이름:</label>
+            <input type="text" name="name" required>
+        </div>
+        <div>
+            <label>별명:</label>
+            <input type="text" id="nickname" name="nickname" required>
+            <span id="nickname-error"></span>
+        </div>
+        <div>
+            <label>주소:</label>
+            <input type="text" name="address" required>
+        </div>
+        <div>
+            <label>전화번호:</label>
+            <input type="text" name="tel" required>
+        </div>
+        <div>
+            <label>회원가입 유형:</label> <!-- 변경된 부분 -->
+            <select name="signupType"> <!-- 변경된 부분 -->
+                <option value="USER">사용자</option>
+                <option value="ADMIN">관리자</option>
+                <option value="COMPANY">기업</option> <!-- 추가된 부분 -->
+            </select>
+        </div>
+        <div>
+            <button type="submit">회원가입</button>
+        </div>
+    </form>
+    <div th:if="${error}">
+        <p th:text="${error}" style="color:red;"></p>
+    </div>
+</body>
+</html>
