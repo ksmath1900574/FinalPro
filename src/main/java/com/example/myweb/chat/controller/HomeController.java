@@ -15,6 +15,7 @@ public class HomeController {
     @Autowired
     private UserRepository userRepository;
 
+    // 사용자가 로그인했는지 확인하고, 환영 페이지로 리디렉션
     @GetMapping("/welcome")
     public String welcome(Model model, HttpSession session) {
         String nickname = (String) session.getAttribute("nickname");
@@ -23,6 +24,7 @@ public class HomeController {
         }
         model.addAttribute("nickname", nickname); // 모델에 닉네임 저장
         model.addAttribute("users", userRepository.findAll()); // 모든 사용자 목록을 모델에 추가
-        return "welcome";
+        return "welcome"; // welcome.html 페이지로 이동
     }
+
 }

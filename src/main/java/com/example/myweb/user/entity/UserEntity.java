@@ -52,33 +52,32 @@ public class UserEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<FreeBoardLikeEntity> likes;
 
-	public static UserEntity toUserEntity(UserDTO userDTO) {
-		UserEntity userEntity = new UserEntity();
-		userEntity.setLoginid(userDTO.getLoginid());
-		userEntity.setPw(userDTO.getPw());
-		userEntity.setName(userDTO.getName());
-		userEntity.setNickname(userDTO.getNickname());
-		userEntity.setAddress(userDTO.getAddress());
-		userEntity.setEmail(userDTO.getEmail());
-		userEntity.setTel(userDTO.getTel());
-		userEntity.setRole(userDTO.getRole());
+    public static UserEntity toUserEntity(UserDTO userDTO) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setLoginid(userDTO.getLoginid());
+        userEntity.setPw(userDTO.getPw());
+        userEntity.setName(userDTO.getName());
+        userEntity.setNickname(userDTO.getNickname());
+        userEntity.setAddress(userDTO.getAddress());
+        userEntity.setEmail(userDTO.getEmail());
+        userEntity.setTel(userDTO.getTel());
+        userEntity.setRole(userDTO.getRole());
+        return userEntity;
+    }
 
-		return userEntity;
-	}
-	
-	public static UserEntity toUpdateUserEntity(UserDTO userDTO) {
-		UserEntity userEntity = new UserEntity();
-		userEntity.setSeq(userDTO.getSeq());
-		userEntity.setLoginid(userDTO.getLoginid());
-		userEntity.setPw(userDTO.getPw());
-		userEntity.setName(userDTO.getName());
-		userEntity.setNickname(userDTO.getNickname());
-		userEntity.setAddress(userDTO.getAddress());
-		userEntity.setEmail(userDTO.getEmail());
-		userEntity.setTel(userDTO.getTel());
-		userEntity.setRole(userDTO.getRole());
-
-		return userEntity;
-	}
+    public static UserEntity toUpdateUserEntity(UserDTO userDTO) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setSeq(userDTO.getSeq());
+        userEntity.setLoginid(userDTO.getLoginid());
+        userEntity.setPw(userDTO.getPw());
+        userEntity.setName(userDTO.getName());
+        userEntity.setNickname(userDTO.getNickname());
+        userEntity.setAddress(userDTO.getAddress());
+        userEntity.setEmail(userDTO.getEmail());
+        userEntity.setTel(userDTO.getTel());
+        userEntity.setRole(userDTO.getRole());
+        // Do not set likes during update to avoid changes
+        return userEntity;
+    }
 
 }

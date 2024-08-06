@@ -1,0 +1,18 @@
+/* src/main/resources/static/css/header.css */
+
+.nav-item .nav-link {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+#bell-item a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.icon-bell {
+  font-size: 1.5rem; /* 아이콘 크기 조절 */
+}

@@ -44,7 +44,7 @@ public class FreeBoardController {
 	public String save(@ModelAttribute FreeBoardDTO freeBoardDTO) throws IllegalStateException, IOException {
 		System.out.println("freeBoardDTO: " + freeBoardDTO);
 		freeBoardService.save(freeBoardDTO);
-		return "user/main.html";
+		return "redirect:/freeboard/paging";
 	}
 
 	@GetMapping("/boardList")
@@ -118,14 +118,14 @@ public class FreeBoardController {
 		FreeBoardDTO freeBoard = freeBoardService.update(freeBoardDTO);
 		model.addAttribute("freeBoard", freeBoard);
 
-		return "freeboard/detail.html";
+		return "freeboard/detail";
 	}
 
 	@GetMapping("/delete/{seq}")
 	public String delete(@PathVariable Long seq) {
 		freeBoardService.delete(seq);
 
-		return "redirect:/freeboard/boardList";
+		return "redirect:/freeboard/paging";
 	}
 
 	// /freeboard/paging?page=1

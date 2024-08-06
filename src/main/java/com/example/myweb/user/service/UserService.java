@@ -77,23 +77,34 @@ public class UserService {
 		}
 	}
 
-	public UserDTO updateForm(String myLoginid) {
-		Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(myLoginid);
-		if (optionalUserEntity.isPresent()) {
-			return UserDTO.toUserDTO(optionalUserEntity.get());
-		} else {
-			return null;
-		}
-	}
+    public UserDTO updateForm(String myLoginid) {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(myLoginid);
+        if (optionalUserEntity.isPresent()) {
+            return UserDTO.toUserDTO(optionalUserEntity.get());
+        } else {
+            return null;
+        }
+    }
 
-	public void update(UserDTO userDTO) {
-		userRepository.save(UserEntity.toUpdateUserEntity(userDTO));
-		
-	}
+    public void update(UserDTO userDTO) {
+        UserEntity userEntity = userRepository.findById(userDTO.getSeq())
+            .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
 
-	public void deleteBySeq(Long seq) {
-		userRepository.deleteById(seq);
-	}
+        // Update fields except for likes
+        userEntity.setPw(userDTO.getPw());
+        userEntity.setName(userDTO.getName());
+        userEntity.setNickname(userDTO.getNickname());
+        userEntity.setAddress(userDTO.getAddress());
+        userEntity.setEmail(userDTO.getEmail());
+        userEntity.setTel(userDTO.getTel());
+        userEntity.setRole(userDTO.getRole());
+
+        // Do not update likes
+        userRepository.save(userEntity);
+    }
+    public void deleteBySeq(Long seq) {
+        userRepository.deleteById(seq);
+    }
 
 	public String emailCheck(String email) {
 		Optional<UserEntity> byEmail = userRepository.findByEmail(email);

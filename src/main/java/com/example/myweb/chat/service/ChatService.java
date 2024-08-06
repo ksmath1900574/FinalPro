@@ -75,9 +75,10 @@ public class ChatService {
         chatMessage.setFileUrl(chatMessageDTO.getFileUrl());
         chatMessage.setRead(false); // 읽지 않음
         
-        
+        	
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
         return ChatMessageDTO.toChatMessageDTO(savedMessage);
+        
     }
 
     // 특정 메시지를 읽음으로 표시하는 메서드
