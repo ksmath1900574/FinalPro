@@ -96,4 +96,15 @@ public class ChatController {
         }
         return chatService.getAllNotifications(nickname);
     }
+    
+    
+    @GetMapping("/userRooms")
+    @ResponseBody
+    public List<ChatRoomDTO> getUserChatRooms(HttpSession session) {
+        String nickname = (String) session.getAttribute("nickname");
+        if (nickname == null) {
+            throw new IllegalArgumentException("Nickname parameter is required");
+        }
+        return chatService.getChatRooms(nickname);
+    }
 }

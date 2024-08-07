@@ -90,7 +90,7 @@ public class UserService {
         UserEntity userEntity = userRepository.findById(userDTO.getSeq())
             .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
 
-        // Update fields except for likes
+
         userEntity.setPw(userDTO.getPw());
         userEntity.setName(userDTO.getName());
         userEntity.setNickname(userDTO.getNickname());
@@ -99,7 +99,6 @@ public class UserService {
         userEntity.setTel(userDTO.getTel());
         userEntity.setRole(userDTO.getRole());
 
-        // Do not update likes
         userRepository.save(userEntity);
     }
     public void deleteBySeq(Long seq) {
@@ -138,6 +137,9 @@ public class UserService {
 			return "ok";
 		}
 	}
-
+    public UserDTO findByLoginid(String loginid) {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(loginid);
+        return optionalUserEntity.map(UserDTO::toUserDTO).orElse(null);
+    }
 
 }

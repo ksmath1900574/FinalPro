@@ -388,5 +388,31 @@ body {
     text-align: center;
     line-height: 20px;
 }
+.default-chat-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
+.default-chat-content {
+  max-width: 600px;
+  padding: 20px;
+}
+
+.default-chat-content h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.default-chat-content p {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
 

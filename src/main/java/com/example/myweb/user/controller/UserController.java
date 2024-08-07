@@ -160,4 +160,5 @@ public class UserController {
         model.addAttribute("user", userDTO);
         return "user/detail.html";
     }
+
 }
