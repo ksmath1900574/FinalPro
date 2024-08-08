@@ -1,13 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // 모든 링크를 절대 경로로 설정
-  var links = document.querySelectorAll('#ftco-navbar .nav-link');
-  links.forEach(function(link) {
-    if (!link.href.startsWith(window.location.origin)) {
-      link.href = window.location.origin + link.getAttribute('href');
-    }
-  });
-
-  // 로그인 상태 확인
   fetch('/api/check-login')
     .then(response => response.json())
     .then(data => {
@@ -19,28 +10,37 @@ document.addEventListener('DOMContentLoaded', function() {
       var logoutItem = document.getElementById("logout-item");
       var nickname = document.getElementById("nickname");
       var chatIcon = document.getElementById("chat-icon");
+      var chatIconContainer = document.getElementById("chat-icon-container");
 
       if (data.isLoggedIn && data.nickname && data.userSeq) {
-        // 로그인 상태
         loginItem.style.display = "none";
         signupItem.style.display = "none";
 
         nickname.innerText = data.nickname;
-        nickname.href = '/user/' + data.userSeq;  // 사용자 상세 페이지 링크 설정
+        nickname.href = '/user/' + data.userSeq;
         nicknameItem.style.display = "block";
         bellItem.style.display = "block";
         chatItem.style.display = "block";
         logoutItem.style.display = "block";
 
-        // 채팅 창 열기 함수 호출
         chatIcon.addEventListener('click', function() {
           const sender = data.nickname;
-          const receiver = ""; // receiver는 필요에 따라 설정
+          const receiver = "";
           openChatWindow(sender, receiver);
         });
 
+        connectWebSocket(data.nickname);
+
+        // 벨 아이콘 클릭 시 읽지 않은 메시지 모달 표시
+        document.getElementById('bell-icon').addEventListener('click', function() {
+          fetchUnreadMessages();
+        });
+
+        enableDrag(chatIconContainer);
+
+        // 이전 위치 로드
+        loadChatIconPosition();
       } else {
-        // 비로그인 상태
         loginItem.style.display = "block";
         signupItem.style.display = "block";
         nicknameItem.style.display = "none";
@@ -52,38 +52,147 @@ document.addEventListener('DOMContentLoaded', function() {
     .catch(error => console.error('Error:', error));
 });
 
-// 창 크기 저장 함수
+function enableDrag(element) {
+  let isDragging = false;
+  let startX, startY, initialX, initialY;
+
+  element.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    initialX = element.offsetLeft;
+    initialY = element.offsetTop;
+    element.style.cursor = 'grabbing';
+    document.body.style.userSelect = 'none'; // 텍스트 선택 비활성화
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      let deltaX = e.clientX - startX;
+      let deltaY = e.clientY - startY;
+      element.style.left = initialX + deltaX + 'px';
+      element.style.top = initialY + deltaY + 'px';
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      element.style.cursor = 'grab';
+      saveChatIconPosition(element.style.left, element.style.top);
+      document.body.style.userSelect = ''; // 텍스트 선택 활성화
+    }
+  });
+}
+
+function saveChatIconPosition(left, top) {
+  localStorage.setItem('chatIconLeft', left);
+  localStorage.setItem('chatIconTop', top);
+}
+
+function loadChatIconPosition() {
+  const left = localStorage.getItem('chatIconLeft');
+  const top = localStorage.getItem('chatIconTop');
+
+  if (left !== null && top !== null) {
+    const chatIconContainer = document.getElementById('chat-icon-container');
+    chatIconContainer.style.left = left;
+    chatIconContainer.style.top = top;
+  }
+}
+
+function connectWebSocket(nickname) {
+  var socket = new SockJS('/ws');
+  var stompClient = Stomp.over(socket);
+
+  stompClient.connect({}, function(frame) {
+    console.log('Connected: ' + frame);
+    stompClient.subscribe('/topic/notifications/' + nickname, function(message) {
+      var chatMessage = JSON.parse(message.body);
+      showNotification(chatMessage);
+    });
+
+    // 구독하여 읽지 않은 메시지 개수 업데이트
+    stompClient.subscribe('/topic/unread-count/' + nickname, function(message) {
+      var unreadCount = JSON.parse(message.body).unreadCount;
+      console.log('Unread Count:', unreadCount); // 콘솔에 읽지 않은 메시지 개수 출력
+      updateUnreadCount(unreadCount);
+    });
+
+    // 초기 읽지 않은 메시지 개수 요청
+    stompClient.send("/app/getUnreadCount", {}, JSON.stringify({ 'nickname': nickname }));
+  });
+}
+
+function updateUnreadCount(unreadCount) {
+  var unreadCountSpan = document.getElementById("unread-count");
+  if (unreadCount > 0) {
+    unreadCountSpan.innerText = unreadCount;
+    unreadCountSpan.style.display = "inline-block";
+  } else {
+    unreadCountSpan.style.display = "none";
+  }
+}
+
+function fetchUnreadMessages() {
+  fetch('/chat/unreadMessages')
+    .then(response => response.json())
+    .then(data => {
+      var unreadMessagesList = document.getElementById('unread-messages-list');
+      unreadMessagesList.innerHTML = ''; // 기존 목록 초기화
+
+      data.forEach(function(message) {
+        var listItem = document.createElement('li');
+        listItem.textContent = message.content;
+        unreadMessagesList.appendChild(listItem);
+      });
+
+      var modal = document.getElementById('unread-messages-modal');
+      modal.style.display = 'block';
+
+      var closeButton = document.querySelector('#unread-messages-modal .close');
+      closeButton.addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+
+      window.addEventListener('click', function(event) {
+        if (event.target == modal) {
+          modal.style.display = 'none';
+        }
+      });
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function showNotification(chatMessage) {
+  // 알림 메시지를 표시하는 로직을 추가합니다.
+  alert(`새 메시지가 도착했습니다: ${chatMessage.content}`);
+}
+
 function saveChatWindowSize(width, height) {
   localStorage.setItem('chatWindowWidth', width);
   localStorage.setItem('chatWindowHeight', height);
 }
 
-// 채팅 창 열기 함수
 function openChatWindow(sender, receiver) {
-  // 로컬 스토리지에서 저장된 창 크기를 불러옴
   let width = localStorage.getItem('chatWindowWidth') || 800;
   let height = localStorage.getItem('chatWindowHeight') || 600;
 
-  // 새로운 창 열기
   const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'chatWindow', `width=${width},height=${height},resizable=yes`);
 
-  // 최소 창 크기 설정
-  const minWidth = 400; // 최소 너비 (픽셀 단위)
-  const minHeight = 600; // 최소 높이 (픽셀 단위)
+  const minWidth = 400;
+  const minHeight = 600;
 
-  // 창 크기가 변경될 때 최소 크기를 유지하도록 조정
   chatWindow.addEventListener('resize', () => {
     let newWidth = chatWindow.outerWidth;
     let newHeight = chatWindow.outerHeight;
 
-    // 최소 크기보다 작아질 경우, 최소 크기로 재조정
     if (newWidth < minWidth || newHeight < minHeight) {
       newWidth = Math.max(newWidth, minWidth);
       newHeight = Math.max(newHeight, minHeight);
       chatWindow.resizeTo(newWidth, newHeight);
     }
 
-    // 현재 크기 로컬 스토리지에 저장
     saveChatWindowSize(newWidth, newHeight);
   });
 }

@@ -13,8 +13,13 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findByRoom_RoomId(String roomId);
     ChatMessage findTopByRoom_RoomIdOrderByTimestampDesc(String roomId); 
     Page<ChatMessage> findByRoom_RoomId(String roomId, Pageable pageable); 
-    
+    List<ChatMessage> findByReceiverNicknameAndIsReadFalse(String receiverNickname);
     List<ChatMessage> findByReceiver_Nickname(String nickname);
+    Page<ChatMessage> findByReceiver_Nickname(String nickname, Pageable pageable);
+
     @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.receiver.nickname = :nickname AND m.isRead = false")
     int countUnreadMessagesByReceiverNickname(@Param("nickname") String nickname);
+    List<ChatMessage> findByReceiver_NicknameAndIsReadFalse(String nickname);
+
+    
 }

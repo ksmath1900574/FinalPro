@@ -10,6 +10,10 @@ import com.example.myweb.user.entity.UserEntity;
 import com.example.myweb.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -116,11 +120,14 @@ public class ChatService {
         return chatRoomRepository.save(chatRoom);
     }
     
+    // 읽지 않은 메시지 개수를 반환하는 메서드
     public int getUnreadMessageCount(String nickname) {
         return chatMessageRepository.countUnreadMessagesByReceiverNickname(nickname);
     }
-    public List<ChatMessageDTO> getAllNotifications(String nickname) {
-        List<ChatMessage> messages = chatMessageRepository.findByReceiver_Nickname(nickname);
-        return messages.stream().map(ChatMessageDTO::toChatMessageDTO).collect(Collectors.toList());
+    
+    // 읽지 않은 메시지 목록을 반환하는 메서드
+    public List<ChatMessageDTO> getUnreadMessages(String nickname) {
+        List<ChatMessage> unreadMessages = chatMessageRepository.findByReceiver_NicknameAndIsReadFalse(nickname);
+        return unreadMessages.stream().map(ChatMessageDTO::toChatMessageDTO).collect(Collectors.toList());
     }
 }
