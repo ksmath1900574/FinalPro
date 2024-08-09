@@ -2,8 +2,10 @@ package com.example.myweb.chat.controller;
 
 import com.example.myweb.chat.dto.ChatMessageDTO;
 import com.example.myweb.chat.dto.ChatRoomDTO;
+import com.example.myweb.chat.entity.ChatRoom;
 import com.example.myweb.chat.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -78,6 +80,7 @@ public class ChatController {
     }
     
 
+
     @GetMapping("/userRooms")
     @ResponseBody
     public List<ChatRoomDTO> getUserChatRooms(HttpSession session) {
@@ -87,4 +90,6 @@ public class ChatController {
         }
         return chatService.getChatRooms(nickname);
     }
+
+
 }

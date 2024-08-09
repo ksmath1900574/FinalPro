@@ -15,7 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -110,7 +113,7 @@ public class ChatService {
         }
         chatMessageRepository.saveAll(chatMessages);
     }
-    
+
     // 채팅방 생성
     private ChatRoom createChatRoom(UserEntity sender, UserEntity receiver) {
         ChatRoom chatRoom = new ChatRoom();
@@ -124,5 +127,29 @@ public class ChatService {
     public int getUnreadMessageCount(String nickname) {
         return chatMessageRepository.countUnreadMessagesByReceiverNickname(nickname);
     }
+    @Autowired
+    public ChatService(ChatMessageRepository chatMessageRepository) {
+        this.chatMessageRepository = chatMessageRepository;
+    }
+
+
+    // 특정 수신자의 닉네임을 기준으로 최근 5개의 메시지를 가져오고, 동일한 발신자의 메시지를 통합
+    public List<ChatMessageDTO> getRecentMessages(String nickname) {
+        List<ChatMessage> messages = chatMessageRepository.findTop5ByReceiver_NicknameOrderByTimestampDesc(nickname);
+
+        Map<String, ChatMessageDTO> notificationMap = new LinkedHashMap<>();
+        for (ChatMessage message : messages) {
+            String sender = message.getSender().getNickname();
+            if (notificationMap.containsKey(sender)) {
+                notificationMap.get(sender).setContent(notificationMap.get(sender).getContent() + " (다른 메시지 있음)");
+            } else {
+                notificationMap.put(sender, ChatMessageDTO.toChatMessageDTO(message));
+            }
+        }
+
+        return new ArrayList<>(notificationMap.values());
+    }
+    
+    
     
 }

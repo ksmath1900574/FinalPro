@@ -5,6 +5,11 @@
   <title>Header</title>
   <link rel="stylesheet" href="/css/bootstrap.min.css"> <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="/css/header.css"> <!-- Custom Header CSS -->
+  
+  <script type="text/javascript">
+    var loggedInUserNickname = '[[${nickname}]]';
+  </script>
+  
   <style>
     .dropdown-menu a {
       color: #343a40;
@@ -12,6 +17,7 @@
     .dropdown-menu a:hover {
       background-color: #f8f9fa;
     }
+    
     /* 모달 스타일 */
     .modal {
       display: none;
@@ -47,6 +53,7 @@
       text-decoration: none;
       cursor: pointer;
     }
+    
     ul {
       list-style: none;
       padding: 0;
@@ -61,6 +68,7 @@
     li.unread {
       font-weight: bold;
     }
+    
     #bell-item {
       position: relative;
       display: flex;
@@ -79,13 +87,15 @@
       line-height: 1;
       transform: translate(50%, -50%);
     }
+    
     #chat-icon-container {
-      position: absolute;
+      position: fixed; /* Fixed position to keep it always visible */
       bottom: 20px;
       right: 20px;
-      cursor: grab;
+      cursor: pointer;
       display: flex;
       align-items: center;
+      z-index: 1000; /* Ensure it is on top */
     }
     .icon-container img {
       vertical-align: middle;
@@ -116,15 +126,25 @@
           <li class="nav-item cta" id="login-item"><a href="/user/login" class="nav-link"><span>로그인</span></a></li>
           <li class="nav-item cta" id="signup-item"><a href="/user/save" class="nav-link"><span>회원가입</span></a></li>
           <li class="nav-item cta" id="nickname-item" style="display:none;">
-            <a href="#" id="nickname" class="nav-link"></a>
+            <a href="/user/detail" id="nickname" class="nav-link"></a>
           </li>
-          <li class="nav-item" id="bell-item" style="display:none;">
-            <a href="#"><img src="/img/bell.png" alt="알림 아이콘" width="24" height="24" id="bell-icon"></a>
-            <span id="unread-count" class="badge badge-pill badge-danger"></span>
+          <li class="nav-item dropdown" id="bell-item" style="display:none;">
+            <a href="#" id="bell-icon" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <img src="/img/bell.png" alt="알림 아이콘" width="24" height="24">
+              <span id="unread-count" class="badge badge-pill badge-danger"></span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="bell-icon">
+              <h6 class="dropdown-header">알림</h6>
+              <div id="dropdown-notifications" style="max-height: 300px; overflow-y: auto;">
+                <!-- 알림 항목이 여기에 추가됩니다 -->
+              </div>
+
           </li>
           <li class="nav-item" id="chat-item" style="display:none;">
             <div id="chat-icon-container" class="icon-container">
-              <a href="#"><img src="/img/message.png" alt="채팅 아이콘" width="24" height="24" id="chat-icon"></a>
+              <a href="#" id="chat-icon-link">
+                <img src="/img/message.png" alt="채팅 아이콘" width="50" height="50" id="chat-icon">
+              </a>
             </div>
           </li>
           <li class="nav-item cta" id="logout-item" style="display:none;"><a href="/user/logout" class="nav-link"><span>로그아웃</span></a></li>
@@ -137,5 +157,6 @@
 <script src="/js/jquery.min.js"></script> <!-- jQuery -->
 <script src="/js/bootstrap.min.js"></script> <!-- Bootstrap JS -->
 <script src="/js/header.js"></script> <!-- 헤더 JS 파일 포함 -->
+
 </body>
 </html>

@@ -13,10 +13,12 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findByRoom_RoomId(String roomId);
     ChatMessage findTopByRoom_RoomIdOrderByTimestampDesc(String roomId); 
 
-
+    int countByReceiver_NicknameAndIsReadFalse(String nickname);
     @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.receiver.nickname = :nickname AND m.isRead = false")
     int countUnreadMessagesByReceiverNickname(@Param("nickname") String nickname);
     List<ChatMessage> findByReceiver_NicknameAndIsReadFalse(String nickname);
 
-    
+    // 특정 수신자에 대해 타임스탬프를 기준으로 가장 최근의 5개의 메시지를 가져오는 메서드
+    List<ChatMessage> findTop5ByReceiver_NicknameOrderByTimestampDesc(String receiverNickname);
+
 }
