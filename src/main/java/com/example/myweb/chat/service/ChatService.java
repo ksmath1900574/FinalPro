@@ -125,9 +125,4 @@ public class ChatService {
         return chatMessageRepository.countUnreadMessagesByReceiverNickname(nickname);
     }
     
-    // 읽지 않은 메시지 목록을 반환하는 메서드
-    public List<ChatMessageDTO> getUnreadMessages(String nickname) {
-        List<ChatMessage> unreadMessages = chatMessageRepository.findByReceiver_NicknameAndIsReadFalse(nickname);
-        return unreadMessages.stream().map(ChatMessageDTO::toChatMessageDTO).collect(Collectors.toList());
-    }
 }

@@ -77,16 +77,6 @@ public class ChatController {
         chatService.markAllMessagesAsRead(sender, receiver);
     }
     
-    // 읽지 않은 메시지 목록을 반환하는 엔드포인트
-    @GetMapping("/unreadMessages")
-    @ResponseBody
-    public List<ChatMessageDTO> getUnreadMessages(HttpSession session) {
-        String nickname = (String) session.getAttribute("nickname");
-        if (nickname == null) {
-            throw new IllegalArgumentException("Nickname is required");
-        }
-        return chatService.getUnreadMessages(nickname);
-    }
 
     @GetMapping("/userRooms")
     @ResponseBody
