@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>로그인</title>
-    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,,500,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
     <style>
         body {
             font-family: 'Gmarket Sans', sans-serif;
@@ -67,6 +67,15 @@
         .login-container a:hover {
             text-decoration: underline;
         }
+        .login-container .helper-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .login-container .helper-links a {
+            font-size: 14px;
+            color: #6f42c1;
+        }
     </style>
 </head>
 <body>
@@ -76,10 +85,14 @@
     <div class="login-container">
         <h1>로그인 화면</h1>
         <form action="/user/login" method="post">
-            <input type="text" name="loginid" placeholder="아이디"> <br/>
-            <input type="password" name="pw" placeholder="비밀번호"> <br/>
+            <input type="text" name="loginid" placeholder="아이디" required> <br/>
+            <input type="password" name="pw" placeholder="비밀번호" required> <br/>
             <input type="submit" value="로그인">
         </form>
+        <div class="helper-links">
+            <a href="/user/find-loginid">아이디 찾기</a>
+            <a href="/user/find-password">비밀번호 찾기</a>
+        </div>
         <a href="/user/save">회원가입</a>
         <a href="/">홈으로</a>
     </div>

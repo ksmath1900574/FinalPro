@@ -3,6 +3,7 @@ package com.example.myweb.user.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.myweb.user.dto.UserDTO;
+import com.example.myweb.user.entity.UserEntity;
 import com.example.myweb.user.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -160,5 +162,13 @@ public class UserController {
         model.addAttribute("user", userDTO);
         return "user/detail.html";
     }
+
+    // 아이디 찾기 페이지 로드
+    @GetMapping("/user/find-loginid")
+    public String findLoginIdForm() {
+        return "user/find-loginid.html";
+    }
+  
+
 
 }

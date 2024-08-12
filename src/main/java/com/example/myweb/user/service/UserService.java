@@ -1,7 +1,9 @@
 package com.example.myweb.user.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -142,4 +144,11 @@ public class UserService {
         return optionalUserEntity.map(UserDTO::toUserDTO).orElse(null);
     }
 
+    public Optional<UserEntity> findByTel(String tel) {
+        return userRepository.findByTel(tel);
+    }
+
+    public Optional<UserEntity> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }

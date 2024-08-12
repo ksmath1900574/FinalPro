@@ -40,15 +40,23 @@ public class FreeBoardController {
 	private final FreeBoardCommentService freeBoardCommentService;
 
 	@GetMapping("/save")
-	public String saveForm() {
-		System.out.println("FreeboardController.saveForm 호출");
-		return "freeboard/save.html";
+	public String saveForm(Model model) {
+	    System.out.println("FreeboardController.saveForm 호출");
+
+	    // 인기글 가져오기 - 상위 3개만 가져오기
+	    List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+	    
+	    // 모델에 인기글 추가
+	    model.addAttribute("popularPosts", popularPosts);
+	    
+	    return "freeboard/save.html";
 	}
 
 	@PostMapping("/save")
 	public String save(@ModelAttribute FreeBoardDTO freeBoardDTO) throws IllegalStateException, IOException {
 		System.out.println("freeBoardDTO: " + freeBoardDTO);
 		freeBoardService.save(freeBoardDTO);
+
 		return "redirect:/freeboard/paging";
 	}
 
@@ -148,9 +156,13 @@ public class FreeBoardController {
 
 	// /freeboard/paging?page=1
 	@GetMapping("/paging")
-	public String paging(@PageableDefault(page = 1) Pageable pageable, Model model) {
-//		pageable.getPageNumber();
+	public String paging(@PageableDefault(page = 1) Pageable pageable, @RequestParam(required = false) String search, Model model) {
+		//pageable.getPageNumber();
 		Page<FreeBoardDTO> freeBoardList = freeBoardService.paging(pageable);
+		List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+		
+
+	    
 		int blockLimit = 3;
 		int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1; // 1
 																													// 4
@@ -170,7 +182,7 @@ public class FreeBoardController {
 		model.addAttribute("freeBoardList", freeBoardList);
 		model.addAttribute("startPage", startPage);
 		model.addAttribute("endPage", endPage);
-
+		model.addAttribute("popularPosts", popularPosts);
 		return "freeboard/paging.html";
 
 	}
@@ -214,5 +226,7 @@ public class FreeBoardController {
 //
 //		return responseData;
 //	}
+	
+	
 
 }

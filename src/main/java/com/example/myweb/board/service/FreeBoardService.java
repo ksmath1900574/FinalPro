@@ -253,4 +253,17 @@ public class FreeBoardService {
 //        return "{\"uploaded\": true, \"url\": \"" + fileUrl + "\"}";
 //    }
 
+	
+	// 추천수 많은 3개 가져오기
+    public List<FreeBoardDTO> getTop3PopularPosts() {
+        List<FreeBoardEntity> popularPosts = freeBoardRepository.findTop3ByOrderByLikeCountDesc();
+        return popularPosts.stream()
+                           .map(FreeBoardDTO::toFreeBoardDTO)
+                           .toList();
+    }
+	
+    // 제목 검색
+    public Page<FreeBoardDTO> searchByTitle(String title, Pageable pageable) {
+        return freeBoardRepository.findByTitleContaining(title, pageable);
+    }
 }
