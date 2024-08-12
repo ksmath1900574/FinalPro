@@ -205,22 +205,26 @@
         }
     }
 
-    // 채팅방 목록을 받아와 화면에 표시(최근 메시지 표시)
-    function onChatListUpdate(payload) {
-        const chatRooms = JSON.parse(payload.body);
-        const chatSidebar = document.querySelector('.chat-sidebar ul');
-        chatSidebar.innerHTML = ''; // 기존 채팅방 목록 초기화
-        chatRooms.forEach(function(roomDto) {
-            if (roomDto.sender && roomDto.receiver) {
-                const user = roomDto.sender.nickname === senderNickname ? roomDto.receiver : roomDto.sender;
-                const li = document.createElement('li');
-                li.onclick = () => openChat(user.nickname);
-                li.className = user.nickname === receiverNickname ? 'active' : '';
-                li.innerHTML = `<strong>${user.nickname}</strong><br><span>${roomDto.latestMessage}</span>`;
-                chatSidebar.appendChild(li);
-            }
-        });
-    }
+	// 채팅방 목록을 받아와 화면에 표시 (수정된 부분)
+	function onChatListUpdate(payload) {
+	    const chatRooms = JSON.parse(payload.body);
+	    const chatSidebar = document.querySelector('.chat-sidebar ul');
+	    chatSidebar.innerHTML = ''; // 기존 채팅방 목록 초기화
+	    chatRooms.forEach(function(roomDto) {
+	        if (roomDto.sender && roomDto.receiver) {
+	            const user = roomDto.sender.nickname === senderNickname ? roomDto.receiver : roomDto.sender;
+	
+	            // 현재 사용자가 채팅방을 나가지 않았을 경우에만 목록에 표시
+	            if (!roomDto.hasLeft) {
+	                const li = document.createElement('li');
+	                li.onclick = () => openChat(user.nickname);
+	                li.className = user.nickname === receiverNickname ? 'active' : '';
+	                li.innerHTML = `<strong>${user.nickname}</strong><br><span>${roomDto.latestMessage}</span>`;
+	                chatSidebar.appendChild(li);
+	            }
+	        }
+	    });
+	}
 
     // 모든 채팅 메시지 로딩
     function loadAllMessages() {

@@ -1,8 +1,10 @@
 package com.example.myweb.board.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -18,6 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.myweb.board.dto.FreeBoardCommentDTO;
 import com.example.myweb.board.dto.FreeBoardDTO;
@@ -46,6 +51,19 @@ public class FreeBoardController {
 		freeBoardService.save(freeBoardDTO);
 		return "redirect:/freeboard/paging";
 	}
+
+//	@PostMapping("/save")
+//	public String save(FreeBoardDTO freeBoardDTO, RedirectAttributes redirectAttributes) {
+//	    try {
+//	        freeBoardService.save(freeBoardDTO);
+//	        redirectAttributes.addFlashAttribute("message", "게시글이 성공적으로 저장되었습니다.");
+//	    } catch (IOException e) {
+//	        e.printStackTrace();
+//	        redirectAttributes.addFlashAttribute("errorMessage", "파일 업로드 중 오류가 발생했습니다.");
+//	        return "redirect:/freeboard/write";  // 에러 발생 시 작성 페이지로 리다이렉트
+//	    }
+//	    return "redirect:/freeboard/paging";
+//	}
 
 	@GetMapping("/boardList")
 	public String findAll(Model model) {
@@ -177,5 +195,24 @@ public class FreeBoardController {
 		boolean liked = freeBoardService.isLikedByUser(boardSeq, loginid);
 		return ResponseEntity.ok(liked); // 좋아요 여부를 JSON 형태로 반환
 	}
+
+//	@PostMapping("/image/upload")
+//	@ResponseBody
+//	public Map<String, Object> imageUpload(@RequestParam("upload") MultipartFile file) throws IOException {
+//		Map<String, Object> responseData = new HashMap<>();
+//
+//		try {
+//			// 파일 저장 및 URL 생성
+//			String fileUrl = freeBoardService.saveFile(file);
+//			responseData.put("uploaded", true);
+//			responseData.put("url", fileUrl);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			responseData.put("uploaded", false);
+//			responseData.put("error", Map.of("message", "파일 업로드 실패"));
+//		}
+//
+//		return responseData;
+//	}
 
 }

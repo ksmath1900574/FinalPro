@@ -153,6 +153,7 @@ function fetchUnreadMessages() {
         })
         .catch(error => console.error('Error fetching notifications:', error));
 }
+/* 드래그 기능
 function enableDrag(element) {
     let isDragging = false;
     let startX, startY, initialX, initialY;
@@ -185,7 +186,7 @@ function enableDrag(element) {
         }
     });
 }
-
+*/
 function saveChatIconPosition(left, top) {
     localStorage.setItem('chatIconLeft', left);
     localStorage.setItem('chatIconTop', top);

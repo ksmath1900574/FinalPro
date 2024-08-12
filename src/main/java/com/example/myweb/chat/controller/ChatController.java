@@ -5,6 +5,7 @@ import com.example.myweb.chat.dto.ChatRoomDTO;
 import com.example.myweb.chat.entity.ChatRoom;
 import com.example.myweb.chat.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -91,5 +92,6 @@ public class ChatController {
         return chatService.getChatRooms(nickname);
     }
 
+    
 
 }

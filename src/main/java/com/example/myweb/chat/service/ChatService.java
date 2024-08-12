@@ -14,7 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private ChatMessageRepository chatMessageRepository;
@@ -33,6 +37,8 @@ public class ChatService {
 
     @Autowired
     private UserRepository userRepository;
+    
+
 
     // 특정 채팅방의 모든 메시지 호출
     public List<ChatMessageDTO> getAllMessages(String roomId) {
@@ -46,10 +52,10 @@ public class ChatService {
                 .stream()
                 .map(chatRoom -> {
                     // 채팅방의 최신 메시지 호출
-                	ChatMessage latestMessage = chatMessageRepository.findTopByRoom_RoomIdOrderByTimestampDesc(chatRoom.getRoomId());
+                    ChatMessage latestMessage = chatMessageRepository.findTopByRoom_RoomIdOrderByTimestampDesc(chatRoom.getRoomId());
                     // 최신 메시지와 메시지 시간 설정
-                	String latestMessageContent = latestMessage != null ? latestMessage.getContent() : "최근 메시지 없음";
-                    String latestMessageTime = latestMessage != null ? latestMessage.getTimestamp() : null;
+                    String latestMessageContent = latestMessage != null ? latestMessage.getContent() : "최근 메시지 없음";
+                    LocalDateTime latestMessageTime = latestMessage != null ? latestMessage.getTimestamp() : null;
                     
                     return new ChatRoomDTO(chatRoom, latestMessageContent, latestMessageTime);
                 })
@@ -64,29 +70,29 @@ public class ChatService {
     // 메세지 저장
     public ChatMessageDTO saveMessage(ChatMessageDTO chatMessageDTO) {
         // 발신자와 수신자 정보 가져오기
-    	UserEntity sender = userRepository.findByNickname(chatMessageDTO.getSender().getNickname())
+        UserEntity sender = userRepository.findByNickname(chatMessageDTO.getSender().getNickname())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid sender nickname: " + chatMessageDTO.getSender().getNickname()));
         UserEntity receiver = userRepository.findByNickname(chatMessageDTO.getReceiver().getNickname())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid receiver nickname: " + chatMessageDTO.getReceiver().getNickname()));
+        
         // 채팅방을 찾거나 존재하지 않으면 새로 생성
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(generateRoomId(sender.getNickname(), receiver.getNickname()))
                 .orElseGet(() -> createChatRoom(sender, receiver));
 
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(chatMessageDTO.getContent());
-        chatMessage.setTimestamp(chatMessageDTO.getTimestamp());
+        chatMessage.setTimestamp(LocalDateTime.now());  // 현재 시간을 설정
         chatMessage.setSender(sender);
         chatMessage.setReceiver(receiver);
         chatMessage.setRoom(chatRoom);
         chatMessage.setFileName(chatMessageDTO.getFileName());
         chatMessage.setFileUrl(chatMessageDTO.getFileUrl());
-        chatMessage.setRead(false); // 읽지 않음
-        
-        	
+        chatMessage.setRead(false);
+
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
         return ChatMessageDTO.toChatMessageDTO(savedMessage);
-        
     }
+
 
     // 특정 메시지를 읽음으로 표시하는 메서드
     public void markMessageAsRead(Long messageId) {
@@ -120,7 +126,12 @@ public class ChatService {
         chatRoom.setRoomId(generateRoomId(sender.getNickname(), receiver.getNickname()));
         chatRoom.setSender(sender);
         chatRoom.setReceiver(receiver);
-        return chatRoomRepository.save(chatRoom);
+        ChatRoom savedRoom = chatRoomRepository.save(chatRoom);
+        
+        // 새로운 채팅방이 생성되면 실시간으로 업데이트
+        messagingTemplate.convertAndSend("/topic/chat-room-updates", new ChatRoomDTO(savedRoom, null, null));
+        
+        return savedRoom;
     }
     
     // 읽지 않은 메시지 개수를 반환하는 메서드
@@ -152,4 +163,5 @@ public class ChatService {
     
     
     
+
 }
