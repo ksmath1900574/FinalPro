@@ -114,6 +114,25 @@
         .file-input-label:hover {
             color: #5753d3;
         }
+        
+        
+        		select[name="tag"] {
+		    width: 10%;
+		    padding: 10px;
+		    margin-bottom: 15px;
+		    border: 1px solid #ddd;
+		    border-radius: 30px; /* 둥근 모서리 */
+		    font-size: 16px;
+		    background-color: #fff; /* 배경색 */
+		    appearance: none; /* 드롭다운 화살표 제거 */
+		    -webkit-appearance: none;
+		    -moz-appearance: none;
+		    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/></svg>');
+		    background-repeat: no-repeat;
+		    background-position: right 10px center;
+		    background-size: 10px;
+		    text-align: center;
+		}
 
     </style>
 </head>
@@ -127,31 +146,40 @@
                 <div class="col-md-8 ftco-animate">
                     <!-- 제목 추가 -->
                     <h1>자유게시판 글쓰기</h1>
-                    
-                    <form action="/freeboard/save" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="loginid" th:value="${session.loginid}">
-                        <label for="nickname">작성자:</label>
-                        <input type="text" name="nickname" id="nickname" th:value="${session.nickname}" readonly>
+<form action="/freeboard/save" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="loginid" th:value="${session.loginid}">
+    
+    <label for="nickname">작성자:</label>
+    <input type="text" name="nickname" id="nickname" th:value="${session.nickname}" readonly>
 
-                        <label for="tag">태그:</label>
-                        <input type="text" name="tag" id="tag">
+    <div style="display: flex; flex-direction: column;">
+        <label for="tag">태그:</label>
+        <select name="tag">
+            <option value="운동">운동</option>
+            <option value="여가">여가</option>
+            <option value="여행">여행</option>
+            <option value="동물">동물</option>
+            <option value="질문">질문</option>
+            <option value="꿀팁">꿀팁</option>
+        </select>
+        
+        <label for="title">제목:</label>
+        <input type="text" name="title" id="title" style="width: 100%;">
+    </div>
 
-                        <label for="title">제목:</label>
-                        <input type="text" name="title" id="title">
+    <label for="contents">내용:</label>
+    <textarea name="contents" id="editor" cols="30" rows="10"></textarea>
 
-                        <label for="contents">내용:</label>
-                        <textarea name="contents" id="editor" cols="30" rows="10"></textarea>
-
-			            <div class="file-input-container">
-						    <!-- 파일 선택 부분 -->
-						    <label for="file" class="file-input-label">
-						        <i class="fas fa-upload"></i>
-						    </label>
-						    <input type="file" name="freeboardFile" id="file" class="file-input" multiple>
-			            </div>
-			            
-			            <input type="submit" value="글작성">
-                    </form>
+    <div class="file-input-container">
+        <!-- 파일 선택 부분 -->
+        <label for="file" class="file-input-label">
+            <i class="fas fa-upload"></i>
+        </label>
+        <input type="file" name="freeboardFile" id="file" class="file-input" multiple>
+    </div>
+    
+    <input type="submit" value="글작성">
+</form>
                 </div>
 
                 <div class="col-md-4 sidebar ftco-animate">

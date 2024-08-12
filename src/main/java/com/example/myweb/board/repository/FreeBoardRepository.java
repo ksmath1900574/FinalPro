@@ -21,13 +21,9 @@ public interface FreeBoardRepository extends JpaRepository<FreeBoardEntity, Long
 	void incrementViews(@Param("seq") Long seq);
 
 	
+	Page<FreeBoardEntity> findByTag(String tag, Pageable pageable);
 	// 추천 수가 높은 3개의 글 가져오는 쿼리
     @Query("SELECT f FROM FreeBoardEntity f ORDER BY f.likeCount DESC")
     List<FreeBoardEntity> findTop3ByOrderByLikeCountDesc();
     
-    // 제목 검색 검색어를 포함한 게시글 찾기
-    @Query("SELECT new com.example.myweb.board.dto.FreeBoardDTO(e.seq, e.tag, e.title, e.createdTime, e.views, e.likeCount, e.nickname) " +
-            "FROM FreeBoardEntity e WHERE e.title LIKE %:title%")
-     Page<FreeBoardDTO> findByTitleContaining(@Param("title") String title, Pageable pageable);
-
  }

@@ -183,7 +183,26 @@
         .toggle-menu ul li:hover {
             background: #f1f1f1;
         }
-    </style>
+        
+		
+		select[name="tag"] {
+		    width: 10%;
+		    padding: 10px;
+		    margin-bottom: 15px;
+		    border: 1px solid #ddd;
+		    border-radius: 30px; /* 둥근 모서리 */
+		    font-size: 16px;
+		    background-color: #fff; /* 배경색 */
+		    appearance: none; /* 드롭다운 화살표 제거 */
+		    -webkit-appearance: none;
+		    -moz-appearance: none;
+		    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/></svg>');
+		    background-repeat: no-repeat;
+		    background-position: right 10px center;
+		    background-size: 10px;
+		    text-align: center;
+		}
+		    </style>
 </head>
 <body>
     <div th:replace="~{common/header :: fragment}"></div>
@@ -200,6 +219,18 @@
                                         <li><a href="/biticboard/paing">자랑게시판</a></li>
                                         <li><a href="/notice/paging">공지사항</a></li>
                                     </ul>
+									<form id="tagFilterForm" action="/freeboard/paging" method="get">
+										<select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
+											태그별 보기:
+											<option value="" ${currentTag==null ? 'selected' : '' }>전체</option>
+											<option value="운동" ${currentTag=='운동' ? 'selected' : '' }>운동</option>
+											<option value="여가" ${currentTag=='여가' ? 'selected' : '' }>여가</option>
+											<option value="여행" ${currentTag=='여행' ? 'selected' : '' }>여행</option>
+											<option value="동물" ${currentTag=='동물' ? 'selected' : '' }>동물</option>
+											<option value="질문" ${currentTag=='질문' ? 'selected' : '' }>질문</option>
+											<option value="꿀팁" ${currentTag=='꿀팁' ? 'selected' : '' }>꿀팁</option>
+										</select>
+									</form>
                                     <tr>
                                         <th>번호</th>
                                         <th>태그</th>
@@ -328,5 +359,54 @@
             openChatWithUser(receiver);
         });
     });
+    
+    	$(document).ready(function () {
+		// 태그 선택 시 게시글 필터링
+		$('#tagSelect').change(function () {
+			const selectedTag = $(this).val();
+			loadBoardData(selectedTag);
+		});
+
+		// 페이지 로드 시 전체 게시글 로드
+		loadBoardData();
+
+		function loadBoardData(tag = '') {
+			// 태그에 따라 게시글 데이터를 가져오는 AJAX 요청
+			$.ajax({
+				url: '/freeboard/paging', // 서버의 API 엔드포인트
+				method: 'GET',
+				data: {tag: tag},
+				success: function (response) {
+					// 게시글 데이터를 렌더링
+					renderBoardList(response);
+				},
+				error: function (error) {
+					console.error('Error loading board data:', error);
+				}
+			});
+		}
+
+		function renderBoardList(boardData) {
+			const boardList = $('#boardList');
+			boardList.empty(); // 기존 게시글 목록을 지우고
+
+			// 가져온 게시글 데이터를 반복하며 테이블에 추가
+			boardData.forEach(freeboard => {
+				const boardRow = `
+                <tr>
+                    <td>${freeboard.seq}</td>
+                    <td>${freeboard.tag}</td>
+                    <td><a href="/freeboard/${freeboard.seq}">${freeboard.title}</a></td>
+                    <td>${freeboard.nickname}</td>
+                    <td>${new Date(freeboard.createdTime).toLocaleDateString()}</td>
+                    <td>${freeboard.views}</td>
+                    <td>${freeboard.likeCount}</td>
+                </tr>
+            `;
+				boardList.append(boardRow);
+			});
+		}
+	});
+
 </script>
 </html>
