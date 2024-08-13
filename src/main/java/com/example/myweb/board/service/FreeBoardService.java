@@ -47,6 +47,8 @@ public class FreeBoardService {
 		// 파일 첨부 여부에 따라 로직 분리
 		if (freeBoardDTO.getFreeboardFile().isEmpty()) {
 			// 첨부 파일 없음
+			// UserEntity를 UserRepository를 통해 조회합니다.
+			// FreeBoardEntity 생성 및 저장
 			FreeBoardEntity freeBoardEntity = FreeBoardEntity.toSaveEntity(freeBoardDTO, userEntity);
 			freeBoardRepository.save(freeBoardEntity);
 		} else {

@@ -415,26 +415,35 @@
 			});
 		}
 
-		function renderBoardList(boardData) {
-			const boardList = $('#boardList');
-			boardList.empty(); // 기존 게시글 목록을 지우고
+function renderBoardList(boardData) {
+    //console.log(boardData); // 응답 데이터를 콘솔에 출력하여 확인
+    const boardList = $('#boardList');
+    boardList.empty(); // 기존 게시글 목록을 지웁니다.
 
-			// 가져온 게시글 데이터를 반복하며 테이블에 추가
-			boardData.forEach(freeboard => {
-				const boardRow = `
-                <tr>
-                    <td>${freeboard.seq}</td>
-                    <td>${freeboard.tag}</td>
-                    <td><a href="/freeboard/${freeboard.seq}">${freeboard.title}</a></td>
-                    <td>${freeboard.nickname}</td>
-                    <td>${new Date(freeboard.createdTime).toLocaleDateString()}</td>
-                    <td>${freeboard.views}</td>
-                    <td>${freeboard.likeCount}</td>
-                </tr>
-            `;
-				boardList.append(boardRow);
-			});
-		}
+    if (!Array.isArray(boardData)) {
+        boardData = [boardData];
+    }
+
+    if (boardData.length === 0) {
+        boardList.append('<tr><td colspan="7">게시글이 없습니다.</td></tr>');
+        return;
+    }
+
+    boardData.forEach(freeboard => {
+        const boardRow = `
+            <tr>
+                <td>${freeboard.seq}</td>
+                <td>${freeboard.tag}</td>
+                <td><a href="/freeboard/${freeboard.seq}">${freeboard.title}</a></td>
+                <td>${freeboard.nickname}</td>
+                <td>${new Date(freeboard.createdTime).toLocaleDateString()}</td>
+                <td>${freeboard.views}</td>
+                <td>${freeboard.likeCount}</td>
+            </tr>
+        `;
+        boardList.append(boardRow);
+    });
+}
 	});
 	
 	    $(document).ready(function () {
