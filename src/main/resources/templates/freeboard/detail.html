@@ -368,11 +368,11 @@ hr.separator {
         <div class="content" th:utext="${freeBoard.contents}"></div> <!-- 글 내용 -->
 
         <!-- 이미지가 있는 경우에만 표시 -->
-        <!--<div th:if="${freeBoard.fileAttached == 1}" class="image-section">
+        <div th:if="${freeBoard.fileAttached == 1}" class="image-section">
             <a th:each="fileName : ${freeBoard.storedFileName}" th:href="@{|/upload/${fileName}|}" target="_blank">
                 <img th:src="@{|/upload/${fileName}|}" class="post-image">
             </a>
-        </div>-->
+        </div>
     </div>
 	<!-- 구분선 -->
     <hr class="separator">

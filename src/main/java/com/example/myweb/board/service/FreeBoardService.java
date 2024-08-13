@@ -47,8 +47,6 @@ public class FreeBoardService {
 		// 파일 첨부 여부에 따라 로직 분리
 		if (freeBoardDTO.getFreeboardFile().isEmpty()) {
 			// 첨부 파일 없음
-			// UserEntity를 UserRepository를 통해 조회합니다.
-			// FreeBoardEntity 생성 및 저장
 			FreeBoardEntity freeBoardEntity = FreeBoardEntity.toSaveEntity(freeBoardDTO, userEntity);
 			freeBoardRepository.save(freeBoardEntity);
 		} else {
@@ -106,19 +104,47 @@ public class FreeBoardService {
 		}
 	}
 
-	@Transactional
-	public FreeBoardDTO update(FreeBoardDTO freeBoardDTO) {
-		UserEntity userEntity = userRepository
-				.findByLoginidAndNickname(freeBoardDTO.getLoginid(), freeBoardDTO.getNickname()).get();
-		FreeBoardEntity freeBoareEntity = FreeBoardEntity.toUpdateEntity(freeBoardDTO, userEntity);
-		freeBoardRepository.save(freeBoareEntity);
-
-		return findBySeq(freeBoardDTO.getSeq());
-	}
-
+//	@Transactional
+//	public FreeBoardDTO update(FreeBoardDTO freeBoardDTO) {
+//		UserEntity userEntity = userRepository
+//				.findByLoginidAndNickname(freeBoardDTO.getLoginid(), freeBoardDTO.getNickname()).get();
+//		FreeBoardEntity freeBoareEntity = FreeBoardEntity.toUpdateEntity(freeBoardDTO, userEntity);
+//		freeBoardRepository.save(freeBoareEntity);
+//
+//		return findBySeq(freeBoardDTO.getSeq());
+//	}
+//
 	public void delete(Long seq) {
 		freeBoardRepository.deleteById(seq);
 	}
+	
+	@Transactional
+	public FreeBoardDTO update(FreeBoardDTO freeBoardDTO) {
+	    // 기존 게시글을 데이터베이스에서 조회
+	    Optional<FreeBoardEntity> optionalBoard = freeBoardRepository.findById(freeBoardDTO.getSeq());
+	    Optional<UserEntity> optionalUser = userRepository.findByLoginidAndNickname(freeBoardDTO.getLoginid(), freeBoardDTO.getNickname());
+
+	    if (optionalBoard.isPresent() && optionalUser.isPresent()) {
+	        FreeBoardEntity freeBoardEntity = optionalBoard.get();
+	        UserEntity userEntity = optionalUser.get();
+
+	        // 필요한 필드만 업데이트
+	        freeBoardEntity.setTitle(freeBoardDTO.getTitle());
+	        freeBoardEntity.setContents(freeBoardDTO.getContents());
+	        freeBoardEntity.setTag(freeBoardDTO.getTag());
+
+	        // 연관된 엔티티(댓글, 파일 등)는 건드리지 않음
+	        // 추가적인 연관 엔티티 변경이 필요하면 적절히 처리 (add/remove)
+
+	        // 업데이트된 엔티티 저장
+	        freeBoardRepository.save(freeBoardEntity);
+
+	        return FreeBoardDTO.toFreeBoardDTO(freeBoardEntity);
+	    } else {
+	        return null;
+	    }
+	}
+
 
 //	@Transactional
 //	public Page<FreeBoardDTO> paging(Pageable pageable) {
@@ -153,37 +179,41 @@ public class FreeBoardService {
 //	}
 	
 	@Transactional
-    public Page<FreeBoardDTO> paging(Pageable pageable, String tag) {
-        int page = pageable.getPageNumber();
-        if (page < 0) {
-            page = 0;
-        } else {
-            page -= 1;
-        }
-        int pageLimit = 5; // 한 페이지에 보여줄 글 갯수
+	public Page<FreeBoardDTO> paging(Pageable pageable, String tag, String search) {
+	    int page = pageable.getPageNumber();
+	    if (page < 0) {
+	        page = 0;
+	    } else {
+	        page -= 1;
+	    }
+	    int pageLimit = 5; // 한 페이지에 보여줄 글 갯수
 
-        Page<FreeBoardEntity> freeBoardEntities;
-        
-        if (tag == null || tag.isEmpty()) {
-            // 태그가 없을 경우 전체 게시글을 가져옴
-            freeBoardEntities = freeBoardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
-        } else {
-            // 태그가 있을 경우 해당 태그의 게시글을 가져옴
-            freeBoardEntities = freeBoardRepository.findByTag(tag, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
-        }
+	    Page<FreeBoardEntity> freeBoardEntities;
+	    
+	    if (search != null && !search.isEmpty()) {
+	        // 검색어가 있을 경우 제목으로 검색
+	        freeBoardEntities = freeBoardRepository.findByTitleContaining(search, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    } else if (tag != null && !tag.isEmpty()) {
+	        // 태그가 있을 경우 해당 태그의 게시글을 가져옴
+	        freeBoardEntities = freeBoardRepository.findByTag(tag, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    } else {
+	        // 태그와 검색어가 모두 없을 경우 전체 게시글을 가져옴
+	        freeBoardEntities = freeBoardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    }
 
-        Page<FreeBoardDTO> freeBoardDTOS = freeBoardEntities.map(freeBoard -> new FreeBoardDTO(
-            freeBoard.getSeq(),
-            freeBoard.getTag(),
-            freeBoard.getTitle(),
-            freeBoard.getCreatedTime(),
-            freeBoard.getViews(),
-            freeBoard.getLikeCount(),
-            freeBoard.getNickname()
-        ));
+	    Page<FreeBoardDTO> freeBoardDTOS = freeBoardEntities.map(freeBoard -> new FreeBoardDTO(
+	        freeBoard.getSeq(),
+	        freeBoard.getTag(),
+	        freeBoard.getTitle(),
+	        freeBoard.getCreatedTime(),
+	        freeBoard.getViews(),
+	        freeBoard.getLikeCount(),
+	        freeBoard.getNickname()
+	    ));
 
-        return freeBoardDTOS;
-    }
+	    return freeBoardDTOS;
+	}
+
 
 	// 좋아요 기능
 	@Transactional
@@ -262,9 +292,6 @@ public class FreeBoardService {
         // 이미지 URL 반환
         return "/upload/" + storedFileName;
     }
-
-	
-	
 	
 	// 추천수 많은 3개 가져오기
     public List<FreeBoardDTO> getTop3PopularPosts() {
