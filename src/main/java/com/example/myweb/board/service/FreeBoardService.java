@@ -158,7 +158,7 @@ public class FreeBoardService {
         } else {
             page -= 1;
         }
-        int pageLimit = 3; // 한 페이지에 보여줄 글 갯수
+        int pageLimit = 5; // 한 페이지에 보여줄 글 갯수
 
         Page<FreeBoardEntity> freeBoardEntities;
         

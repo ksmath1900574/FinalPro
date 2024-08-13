@@ -187,7 +187,7 @@ public class FreeBoardController {
 	    
 	    Page<FreeBoardDTO> freeBoardList = freeBoardService.paging(pageable, tag);
 		List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
-	    int blockLimit = 3;
+	    int blockLimit = 10;
 	    int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
 	    int endPage = ((startPage + blockLimit - 1) < freeBoardList.getTotalPages()) 
 	                  ? startPage + blockLimit - 1 
