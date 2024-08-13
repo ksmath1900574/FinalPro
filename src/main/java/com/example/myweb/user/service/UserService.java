@@ -1,11 +1,11 @@
 package com.example.myweb.user.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.myweb.user.dto.UserDTO;
@@ -19,42 +19,88 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+//	public void save(UserDTO userDTO) {
+//		// 1. dto -> entity 변환
+//
+//		// 2. repository의 save 메서드 호출
+//		UserEntity userEntity = UserEntity.toUserEntity(userDTO);
+//		userRepository.save(userEntity);
+//		System.out.println("회원가입 성공");
+//
+//		// repository의 save 메서드 호출 (조건. entity객체를 넘겨줘야 함)
+//	}
 
 	public void save(UserDTO userDTO) {
-		// 1. dto -> entity 변환
+		String loginid = userDTO.getLoginid();
+		String pw = userDTO.getPw();
+		String name = userDTO.getName();
+		String nickname = userDTO.getNickname();
+		String address = userDTO.getAddress();
+		String email = userDTO.getEmail();
+		String tel = userDTO.getTel();
+		String role = userDTO.getRole();
 
-		// 2. repository의 save 메서드 호출
-		UserEntity userEntity = UserEntity.toUserEntity(userDTO);
+		UserEntity userEntity = new UserEntity();
+		userEntity.setLoginid(loginid);
+		userEntity.setPw(bCryptPasswordEncoder.encode(pw));
+		userEntity.setName(name);
+		userEntity.setNickname(nickname);
+		userEntity.setAddress(address);
+		userEntity.setEmail(email);
+		userEntity.setTel(tel);
+		userEntity.setRole(role);
+
 		userRepository.save(userEntity);
 		System.out.println("회원가입 성공");
 
 		// repository의 save 메서드 호출 (조건. entity객체를 넘겨줘야 함)
 	}
 
+//	public UserDTO login(UserDTO userDTO) {
+//		// 1. 회원이 입력한 이메일로 db에서 조회를 함
+//		// 2. db에서 조회한 비밀번호와 사용자가 입력한 비밀번호가 일치하는지 판단
+//		Optional<UserEntity> byLoginid = userRepository.findByLoginid(userDTO.getLoginid());
+//		if (byLoginid.isPresent()) {
+//			// 조회 결과가 있다(해당 아이디를 가진 회원 정보가 있다)
+//			UserEntity userEntity = byLoginid.get();
+//			if (userEntity.getPw().equals(userDTO.getPw())) {
+//				// 비밀번호 일치
+//				// entity -> dto 변환 후 리턴
+//				UserDTO dto = UserDTO.toUserDTO(userEntity);
+//				System.out.println("로그인 성공!");
+//				return dto;
+//			} else {
+//				// 비밀번호 불일치(로그인실패)
+//				System.out.println("비밀번호 틀림!");
+//				return null;
+//			}
+//		} else {
+//			// 조회 결과가 없다(해당 아이디를 가진 회원 정보가 없다)
+//			System.out.println("아이디가 없습니다!");
+//			return null;
+//		}
+//
+//	}
+
 	public UserDTO login(UserDTO userDTO) {
-		// 1. 회원이 입력한 이메일로 db에서 조회를 함
-		// 2. db에서 조회한 비밀번호와 사용자가 입력한 비밀번호가 일치하는지 판단
 		Optional<UserEntity> byLoginid = userRepository.findByLoginid(userDTO.getLoginid());
 		if (byLoginid.isPresent()) {
-			// 조회 결과가 있다(해당 아이디를 가진 회원 정보가 있다)
 			UserEntity userEntity = byLoginid.get();
-			if (userEntity.getPw().equals(userDTO.getPw())) {
-				// 비밀번호 일치
-				// entity -> dto 변환 후 리턴
+			// 암호화된 비밀번호와 입력한 비밀번호 비교
+			if (bCryptPasswordEncoder.matches(userDTO.getPw(), userEntity.getPw())) {
 				UserDTO dto = UserDTO.toUserDTO(userEntity);
 				System.out.println("로그인 성공!");
 				return dto;
 			} else {
-				// 비밀번호 불일치(로그인실패)
 				System.out.println("비밀번호 틀림!");
 				return null;
 			}
 		} else {
-			// 조회 결과가 없다(해당 아이디를 가진 회원 정보가 없다)
 			System.out.println("아이디가 없습니다!");
 			return null;
 		}
-
 	}
 
 	public List<UserDTO> findAll() {
@@ -79,33 +125,61 @@ public class UserService {
 		}
 	}
 
-    public UserDTO updateForm(String myLoginid) {
-        Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(myLoginid);
-        if (optionalUserEntity.isPresent()) {
-            return UserDTO.toUserDTO(optionalUserEntity.get());
-        } else {
-            return null;
-        }
-    }
+	public UserDTO updateForm(String myLoginid) {
+		Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(myLoginid);
+		if (optionalUserEntity.isPresent()) {
+			return UserDTO.toUserDTO(optionalUserEntity.get());
+		} else {
+			return null;
+		}
+	}
 
-    public void update(UserDTO userDTO) {
-        UserEntity userEntity = userRepository.findById(userDTO.getSeq())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+//    public void update(UserDTO userDTO) {
+//        UserEntity userEntity = userRepository.findById(userDTO.getSeq())
+//            .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+//
+//
+//        userEntity.setPw(userDTO.getPw());
+//        userEntity.setName(userDTO.getName());
+//        userEntity.setNickname(userDTO.getNickname());
+//        userEntity.setAddress(userDTO.getAddress());
+//        userEntity.setEmail(userDTO.getEmail());
+//        userEntity.setTel(userDTO.getTel());
+//        userEntity.setRole(userDTO.getRole());
+//
+//        userRepository.save(userEntity);
+//    }
+//    public void deleteBySeq(Long seq) {
+//        userRepository.deleteById(seq);
+//    }
 
+	public void update(UserDTO userDTO) {
+		Optional<UserEntity> optionalUserEntity = userRepository.findById(userDTO.getSeq());
+		if (optionalUserEntity.isPresent()) {
+			UserEntity userEntity = optionalUserEntity.get();
+			userEntity.setLoginid(userDTO.getLoginid());
 
-        userEntity.setPw(userDTO.getPw());
-        userEntity.setName(userDTO.getName());
-        userEntity.setNickname(userDTO.getNickname());
-        userEntity.setAddress(userDTO.getAddress());
-        userEntity.setEmail(userDTO.getEmail());
-        userEntity.setTel(userDTO.getTel());
-        userEntity.setRole(userDTO.getRole());
+			if (!bCryptPasswordEncoder.matches(userDTO.getPw(), userEntity.getPw())) {
+				userEntity.setPw(bCryptPasswordEncoder.encode(userDTO.getPw()));
+			}
 
-        userRepository.save(userEntity);
-    }
-    public void deleteBySeq(Long seq) {
-        userRepository.deleteById(seq);
-    }
+			userEntity.setName(userDTO.getName());
+			userEntity.setNickname(userDTO.getNickname());
+			userEntity.setAddress(userDTO.getAddress());
+			userEntity.setEmail(userDTO.getEmail());
+			userEntity.setTel(userDTO.getTel());
+			userEntity.setRole(userDTO.getRole());
+
+			userRepository.save(userEntity);
+			System.out.println("업데이트 성공");
+		} else {
+			System.out.println("업데이트 실패: 사용자 없음");
+		}
+	}
+
+	public void deleteBySeq(Long seq) {
+		userRepository.deleteById(seq);
+	}
 
 	public String emailCheck(String email) {
 		Optional<UserEntity> byEmail = userRepository.findByEmail(email);
@@ -139,16 +213,48 @@ public class UserService {
 			return "ok";
 		}
 	}
-    public UserDTO findByLoginid(String loginid) {
-        Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(loginid);
-        return optionalUserEntity.map(UserDTO::toUserDTO).orElse(null);
+
+	public UserDTO findByLoginid(String loginid) {
+		Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(loginid);
+		return optionalUserEntity.map(UserDTO::toUserDTO).orElse(null);
+	}
+
+	public UserDTO findByNameAndEmail(String name, String email) {
+		Optional<UserEntity> optionalUserEntity = userRepository.findByNameAndEmail(name, email);
+		return optionalUserEntity.map(UserDTO::toUserDTO).orElse(null);
+	}
+
+	public UserDTO findByLoginidAndEmail(String loginid, String email) {
+		Optional<UserEntity> optionalUserEntity = userRepository.findByLoginidAndEmail(loginid, email);
+		return optionalUserEntity.map(UserDTO::toUserDTO).orElse(null);
+	}
+
+	public boolean requestPasswordReset(String loginid, String email) {
+		Optional<UserEntity> userOptional = userRepository.findByLoginidAndEmail(loginid, email);
+		return userOptional.isPresent();
+	}
+
+	public boolean checkUserExists(String loginid, String email) {
+        // 해당 아이디와 이메일로 사용자 존재 여부 확인
+        return userRepository.findByLoginidAndEmail(loginid, email).isPresent();
     }
 
-    public Optional<UserEntity> findByTel(String tel) {
-        return userRepository.findByTel(tel);
+    public boolean updatePassword(String loginid, String email, String newPassword) {
+        Optional<UserEntity> optionalUser = userRepository.findByLoginidAndEmail(loginid, email);
+        if (!optionalUser.isPresent()) {
+            return false; // 사용자 없음
+        }
+
+        UserEntity user = optionalUser.get();
+        
+        // 비밀번호 암호화
+        String encodedPassword = bCryptPasswordEncoder.encode(newPassword);
+        user.setPw(encodedPassword);
+        
+        // 사용자 업데이트
+        userRepository.save(user);
+        
+        return true; // 성공적으로 비밀번호가 업데이트됨
     }
 
-    public Optional<UserEntity> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
 }

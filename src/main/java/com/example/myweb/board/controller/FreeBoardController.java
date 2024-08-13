@@ -120,11 +120,21 @@ public class FreeBoardController {
 		// 게시글 데이터를 가져와서 detail.html에 출력
 		FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
 		List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(seq);
+	    // 세션에서 로그인 사용자 ID를 가져옵니다.
+	    String loginid = (String) session.getAttribute("loginid");
+
+	    // 로그인 사용자가 작성자인지 여부를 확인합니다.
+	    boolean isAuthor = loginid != null && loginid.equals(freeBoardDTO.getLoginid());
 
 		model.addAttribute("freeBoardCommentList", freeBoardCommentDTOList);
 		model.addAttribute("freeBoard", freeBoardDTO);
 		model.addAttribute("page", pageable.getPageNumber());
-
+		model.addAttribute("isAuthor", isAuthor);  // 작성자 여부를 모델에 추가
+	    // 인기글 가져오기 - 상위 3개만 가져오기
+	    List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+	    
+	    // 모델에 인기글 추가
+	    model.addAttribute("popularPosts", popularPosts);
 		return "freeboard/detail.html";
 	}
 
@@ -132,7 +142,11 @@ public class FreeBoardController {
 	public String updateForm(@PathVariable Long seq, Model model) {
 		FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
 		model.addAttribute("freeBoardUpdate", freeBoardDTO);
-
+	    // 인기글 가져오기 - 상위 3개만 가져오기
+	    List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+	    
+	    // 모델에 인기글 추가
+	    model.addAttribute("popularPosts", popularPosts);
 		return "freeboard/update.html";
 	}
 
@@ -140,7 +154,11 @@ public class FreeBoardController {
 	public String update(@ModelAttribute FreeBoardDTO freeBoardDTO, Model model) {
 		FreeBoardDTO freeBoard = freeBoardService.update(freeBoardDTO);
 		model.addAttribute("freeBoard", freeBoard);
-
+	    // 인기글 가져오기 - 상위 3개만 가져오기
+	    List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+	    
+	    // 모델에 인기글 추가
+	    model.addAttribute("popularPosts", popularPosts);
 		return "freeboard/detail";
 	}
 
