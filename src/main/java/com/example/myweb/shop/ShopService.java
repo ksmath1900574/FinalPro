@@ -1,7 +1,10 @@
 package com.example.myweb.shop;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,5 +38,19 @@ public class ShopService {
     // 상품 삭제합니다.
     public void deleteShopById(Long nom) {
         shopRepository.deleteById(nom);
+    }
+    
+    // 모든 상품을 페이징 처리하여 가져옵니다.
+    public Page<ShopEntity> getAllShops(int page, int size) {
+        return shopRepository.findAll(PageRequest.of(page, size));
+    }
+    
+    // 키워드를 사용하여 상품을 페이징 처리하여 검색합니다.
+    public Page<ShopEntity> searchShops(String keyword, int page, int size) {
+        return shopRepository.findByProductnameContainingOrDescriptionContaining(keyword, keyword, PageRequest.of(page, size));
+    }
+    // 판매자가 올린 다른 상품을 조회합니다. 현재 상품은 제외.
+    public List<ShopEntity> getOtherShopsBySeller(String sellerNickname, Long excludeNom) {
+        return shopRepository.findBySellernicknameAndNomNot(sellerNickname, excludeNom);
     }
 }
