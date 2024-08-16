@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,37 +41,41 @@ public class BiticBoardService {
 	private final UserRepository userRepository;
 
 	public void save(BiticBoardDTO biticBoardDTO) throws IllegalStateException, IOException {
-		// UserEntity를 UserRepository를 통해 조회합니다.
-		UserEntity userEntity = userRepository
-				.findByLoginidAndNickname(biticBoardDTO.getLoginid(), biticBoardDTO.getNickname()).get();
+	    // UserEntity를 UserRepository를 통해 조회합니다.
+	    UserEntity userEntity = userRepository
+	            .findByLoginidAndNickname(biticBoardDTO.getLoginid(), biticBoardDTO.getNickname()).orElseThrow(
+	                () -> new NoSuchElementException("해당 사용자를 찾을 수 없습니다."));
 
-		// 파일 첨부 여부에 따라 로직 분리
-		if (biticBoardDTO.getBiticboardFile().isEmpty()) {
-			// 첨부 파일 없음
-			BiticBoardEntity biticBoardEntity = BiticBoardEntity.toSaveEntity(biticBoardDTO, userEntity);
-			biticBoardRepository.save(biticBoardEntity);
-		} else {
-			// 첨부 파일 있음
-			BiticBoardEntity biticBoardEntity = BiticBoardEntity.toSaveFileEntity(biticBoardDTO, userEntity);
-			Long savedSeq = biticBoardRepository.save(biticBoardEntity).getSeq(); // 게시글의 seq
-			BiticBoardEntity biticBoard = biticBoardRepository.findById(savedSeq).get(); // 게시글의 정보를 가져옴
-			for (MultipartFile biticBoardFile : biticBoardDTO.getBiticboardFile()) {
-				String originalFilename = biticBoardFile.getOriginalFilename(); // 파일의 이름 가져옴
-				String storedFileName = System.currentTimeMillis() + "_" + originalFilename; // 서버 저장용 이름 생성
-				String savePath = new File("/src/main/resources/static/upload/").getAbsolutePath() + "/"
-						+ storedFileName;
+	    // 파일 첨부 여부에 따라 로직 분리
+	    if (biticBoardDTO.getBiticboardFile() == null || biticBoardDTO.getBiticboardFile().isEmpty()) {
+	        // 첨부 파일 없음
+	        BiticBoardEntity biticBoardEntity = BiticBoardEntity.toSaveEntity(biticBoardDTO, userEntity);
+	        biticBoardRepository.save(biticBoardEntity);
+	    } else {
+	        // 첨부 파일 있음
+	        BiticBoardEntity biticBoardEntity = BiticBoardEntity.toSaveFileEntity(biticBoardDTO, userEntity);
+	        Long savedSeq = biticBoardRepository.save(biticBoardEntity).getSeq(); // 게시글의 seq
+	        BiticBoardEntity biticBoard = biticBoardRepository.findById(savedSeq).orElseThrow(
+	            () -> new NoSuchElementException("게시글 저장에 실패했습니다."));
 
-				File file = new File(savePath);
-				file.getParentFile().mkdirs(); // 경로가 존재하지 않으면 생성
-				biticBoardFile.transferTo(file); // 파일 저장
+	        for (MultipartFile biticBoardFile : biticBoardDTO.getBiticboardFile()) {
+	            if (!biticBoardFile.isEmpty()) {
+	                String originalFilename = biticBoardFile.getOriginalFilename(); // 파일의 이름 가져옴
+	                String storedFileName = System.currentTimeMillis() + "_" + originalFilename; // 서버 저장용 이름 생성
+	                String savePath = new File("/src/main/resources/static/upload/").getAbsolutePath() + "/"
+	                        + storedFileName;
 
-				BiticBoardFileEntity biticBoardFileEntity = BiticBoardFileEntity.toBiticBoardFileEntity(biticBoard,
-						originalFilename, storedFileName);
-				biticBoardFileRepository.save(biticBoardFileEntity); // 파일 정보 저장
-			}
-		}
+	                File file = new File(savePath);
+	                file.getParentFile().mkdirs(); // 경로가 존재하지 않으면 생성
+	                biticBoardFile.transferTo(file); // 파일 저장
+
+	                BiticBoardFileEntity biticBoardFileEntity = BiticBoardFileEntity.toBiticBoardFileEntity(biticBoard,
+	                        originalFilename, storedFileName);
+	                biticBoardFileRepository.save(biticBoardFileEntity); // 파일 정보 저장
+	            }
+	        }
+	    }
 	}
-	
 
 
 
@@ -104,6 +109,16 @@ public class BiticBoardService {
 		}
 	}
 
+//	@Transactional
+//	public BiticBoardDTO update(BiticBoardDTO biticBoardDTO) {
+//		UserEntity userEntity = userRepository
+//				.findByLoginidAndNickname(biticBoardDTO.getLoginid(), biticBoardDTO.getNickname()).get();
+//		BiticBoardEntity biticBoareEntity = BiticBoardEntity.toUpdateEntity(biticBoardDTO, userEntity);
+//		biticBoardRepository.save(biticBoareEntity);
+//
+//		return findBySeq(biticBoardDTO.getSeq());
+//	}
+//
 	public void delete(Long seq) {
 		biticBoardRepository.deleteById(seq);
 	}
@@ -136,40 +151,74 @@ public class BiticBoardService {
 	}
 
 
-
+//	@Transactional
+//	public Page<BiticBoardDTO> paging(Pageable pageable) {
+//		int page = pageable.getPageNumber();
+//		if (page < 0) {
+//			page = 0;
+//		} else {
+//			page -= 1;
+//		}
+//		int pageLimit = 3; // 한 페이지에 보여줄 글 갯수
+//		// 한페이지당 3개씩 글을 보여주고 정렬 기준은 seq 기준으로 내림차순 정렬
+//		// page 위치에 있는 값은 0부터 시작
+//		Page<BiticBoardEntity> biticBoardEntities = biticBoardRepository
+//				.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+//
+//		System.out.println("biticBoardEntities.getContent() = " + biticBoardEntities.getContent()); // 요청 페이지에 해당하는 글
+//		System.out.println("biticBoardEntities.getTotalElements() = " + biticBoardEntities.getTotalElements()); // 전체 글갯수
+//		System.out.println("biticBoardEntities.getNumber() = " + biticBoardEntities.getNumber()); // DB로 요청한 페이지 번호
+//		System.out.println("biticBoardEntities.getTotalPages() = " + biticBoardEntities.getTotalPages()); // 전체 페이지 갯수
+//		System.out.println("biticBoardEntities.getSize() = " + biticBoardEntities.getSize()); // 한 페이지에 보여지는 글 갯수
+//		System.out.println("biticBoardEntities.hasPrevious() = " + biticBoardEntities.hasPrevious()); // 이전 페이지 존재 여부
+//		System.out.println("biticBoardEntities.isFirst() = " + biticBoardEntities.isFirst()); // 첫 페이지 여부
+//		System.out.println("biticBoardEntities.isLast() = " + biticBoardEntities.isLast()); // 마지막 페이지 여부
+//
+//		// 목록: seq, nickname, title, views, likeCount, createdTime
+//		// seq, tag, title, createdTime, views, lickCount, nickname
+//		Page<BiticBoardDTO> biticBoardDTOS = biticBoardEntities.map(biticBoard -> new BiticBoardDTO(biticBoard.getSeq(),
+//				biticBoard.getTag(), biticBoard.getTitle(), biticBoard.getCreatedTime(), biticBoard.getViews(),
+//				biticBoard.getLikeCount(), biticBoard.getNickname()));
+//
+//		return biticBoardDTOS;
+//	}
 	
 	@Transactional
-    public Page<BiticBoardDTO> paging(Pageable pageable, String tag) {
-        int page = pageable.getPageNumber();
-        if (page < 0) {
-            page = 0;
-        } else {
-            page -= 1;
-        }
-        int pageLimit = 5; // 한 페이지에 보여줄 글 갯수
+	public Page<BiticBoardDTO> paging(Pageable pageable, String tag, String search) {
+	    int page = pageable.getPageNumber();
+	    if (page < 0) {
+	        page = 0;
+	    } else {
+	        page -= 1;
+	    }
+	    int pageLimit = 5; // 한 페이지에 보여줄 글 갯수
 
-        Page<BiticBoardEntity> biticBoardEntities;
-        
-        if (tag == null || tag.isEmpty()) {
-            // 태그가 없을 경우 전체 게시글을 가져옴
-        	biticBoardEntities = biticBoardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
-        } else {
-            // 태그가 있을 경우 해당 태그의 게시글을 가져옴
-        	biticBoardEntities = biticBoardRepository.findByTag(tag, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
-        }
+	    Page<BiticBoardEntity> biticBoardEntities;
+	    
+	    if (search != null && !search.isEmpty()) {
+	        // 검색어가 있을 경우 제목으로 검색
+	        biticBoardEntities = biticBoardRepository.findByTitleContaining(search, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    } else if (tag != null && !tag.isEmpty()) {
+	        // 태그가 있을 경우 해당 태그의 게시글을 가져옴
+	        biticBoardEntities = biticBoardRepository.findByTag(tag, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    } else {
+	        // 태그와 검색어가 모두 없을 경우 전체 게시글을 가져옴
+	        biticBoardEntities = biticBoardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    }
 
-        Page<BiticBoardDTO> biticBoardDTOS = biticBoardEntities.map(biticBoard -> new BiticBoardDTO(
-    		biticBoard.getSeq(),
-    		biticBoard.getTag(),
-    		biticBoard.getTitle(),
-    		biticBoard.getCreatedTime(),
-    		biticBoard.getViews(),
-    		biticBoard.getLikeCount(),
-    		biticBoard.getNickname()
-        ));
+	    Page<BiticBoardDTO> biticBoardDTOS = biticBoardEntities.map(biticBoard -> new BiticBoardDTO(
+	        biticBoard.getSeq(),
+	        biticBoard.getTag(),
+	        biticBoard.getTitle(),
+	        biticBoard.getCreatedTime(),
+	        biticBoard.getViews(),
+	        biticBoard.getLikeCount(),
+	        biticBoard.getNickname()
+	    ));
 
-        return biticBoardDTOS;
-    }
+	    return biticBoardDTOS;
+	}
+
 
 	// 좋아요 기능
 	@Transactional
@@ -209,6 +258,7 @@ public class BiticBoardService {
 
 		return false; // 게시글 또는 사용자가 존재하지 않음을 반환
 	}
+
 	public boolean isLikedByUser(Long boardSeq, String loginid) {
 		Optional<BiticBoardEntity> optionalBoard = biticBoardRepository.findById(boardSeq);
 		Optional<UserEntity> optionalUser = userRepository.findByLoginid(loginid);
