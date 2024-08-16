@@ -394,7 +394,7 @@ select[name="tag"] {
 
     function openChatWithUser(receiver) {
         const sender = document.getElementById('nickname').innerText;
-        const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'ChatWindow', 'width=800,height=600');
+        const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'ChatWindow', 'width=900,height=600');
         chatWindow.focus();
     }
 
