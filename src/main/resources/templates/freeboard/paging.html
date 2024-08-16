@@ -392,11 +392,25 @@ select[name="tag"] {
         location.href = "/freeboard/save";
     }
 
-    function openChatWithUser(receiver) {
-        const sender = document.getElementById('nickname').innerText;
-        const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'ChatWindow', 'width=900,height=600');
-        chatWindow.focus();
-    }
+function openChatWithUser(receiver) {
+    const sender = document.getElementById('nickname').innerText;
+    
+    // 새 창의 너비와 높이 설정
+    const width = 900;
+    const height = 600;
+    
+    // 화면의 중앙에 창을 열기 위해 위치 계산
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2);
+    
+    // 창을 중앙에 열기 위해 위치 지정
+    const chatWindow = window.open(
+        `/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`,
+        'ChatWindow',
+        `width=${width},height=${height},left=${left},top=${top}`
+    );
+    chatWindow.focus();
+}
 
     $(document).ready(function() {
         // 사용자 이름 클릭 시 이벤트 처리

@@ -221,8 +221,16 @@ function openChatWindow(sender, receiver) {
     let width = localStorage.getItem('chatWindowWidth') || 800;
     let height = localStorage.getItem('chatWindowHeight') || 600;
 
-    // 채팅창을 열 때, sender와 receiver를 URL 파라미터로 전달
-    const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'chatWindow', `width=${width},height=${height},resizable=yes`);
+    // 화면의 중앙에 창을 열기 위해 위치 계산
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2);
+
+    // 채팅창을 열 때, sender와 receiver를 URL 파라미터로 전달하고 위치와 크기를 지정
+    const chatWindow = window.open(
+        `/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 
+        'chatWindow', 
+        `width=${width},height=${height},left=${left},top=${top},resizable=yes`
+    );
 
     const minWidth = 400;
     const minHeight = 600;

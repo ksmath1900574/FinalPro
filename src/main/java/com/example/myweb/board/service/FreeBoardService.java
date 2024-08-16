@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,37 +41,41 @@ public class FreeBoardService {
 	private final UserRepository userRepository;
 
 	public void save(FreeBoardDTO freeBoardDTO) throws IllegalStateException, IOException {
-		// UserEntity를 UserRepository를 통해 조회합니다.
-		UserEntity userEntity = userRepository
-				.findByLoginidAndNickname(freeBoardDTO.getLoginid(), freeBoardDTO.getNickname()).get();
+	    // UserEntity를 UserRepository를 통해 조회합니다.
+	    UserEntity userEntity = userRepository
+	            .findByLoginidAndNickname(freeBoardDTO.getLoginid(), freeBoardDTO.getNickname()).orElseThrow(
+	                () -> new NoSuchElementException("해당 사용자를 찾을 수 없습니다."));
 
-		// 파일 첨부 여부에 따라 로직 분리
-		if (freeBoardDTO.getFreeboardFile().isEmpty()) {
-			// 첨부 파일 없음
-			FreeBoardEntity freeBoardEntity = FreeBoardEntity.toSaveEntity(freeBoardDTO, userEntity);
-			freeBoardRepository.save(freeBoardEntity);
-		} else {
-			// 첨부 파일 있음
-			FreeBoardEntity freeBoardEntity = FreeBoardEntity.toSaveFileEntity(freeBoardDTO, userEntity);
-			Long savedSeq = freeBoardRepository.save(freeBoardEntity).getSeq(); // 게시글의 seq
-			FreeBoardEntity freeBoard = freeBoardRepository.findById(savedSeq).get(); // 게시글의 정보를 가져옴
-			for (MultipartFile freeBoardFile : freeBoardDTO.getFreeboardFile()) {
-				String originalFilename = freeBoardFile.getOriginalFilename(); // 파일의 이름 가져옴
-				String storedFileName = System.currentTimeMillis() + "_" + originalFilename; // 서버 저장용 이름 생성
-				String savePath = new File("/src/main/resources/static/upload/").getAbsolutePath() + "/"
-						+ storedFileName;
+	    // 파일 첨부 여부에 따라 로직 분리
+	    if (freeBoardDTO.getFreeboardFile() == null || freeBoardDTO.getFreeboardFile().isEmpty()) {
+	        // 첨부 파일 없음
+	        FreeBoardEntity freeBoardEntity = FreeBoardEntity.toSaveEntity(freeBoardDTO, userEntity);
+	        freeBoardRepository.save(freeBoardEntity);
+	    } else {
+	        // 첨부 파일 있음
+	        FreeBoardEntity freeBoardEntity = FreeBoardEntity.toSaveFileEntity(freeBoardDTO, userEntity);
+	        Long savedSeq = freeBoardRepository.save(freeBoardEntity).getSeq(); // 게시글의 seq
+	        FreeBoardEntity freeBoard = freeBoardRepository.findById(savedSeq).orElseThrow(
+	            () -> new NoSuchElementException("게시글 저장에 실패했습니다."));
 
-				File file = new File(savePath);
-				file.getParentFile().mkdirs(); // 경로가 존재하지 않으면 생성
-				freeBoardFile.transferTo(file); // 파일 저장
+	        for (MultipartFile freeBoardFile : freeBoardDTO.getFreeboardFile()) {
+	            if (!freeBoardFile.isEmpty()) {
+	                String originalFilename = freeBoardFile.getOriginalFilename(); // 파일의 이름 가져옴
+	                String storedFileName = System.currentTimeMillis() + "_" + originalFilename; // 서버 저장용 이름 생성
+	                String savePath = new File("/src/main/resources/static/upload/").getAbsolutePath() + "/"
+	                        + storedFileName;
 
-				FreeBoardFileEntity freeBoardFileEntity = FreeBoardFileEntity.toFreeBoardFileEntity(freeBoard,
-						originalFilename, storedFileName);
-				freeBoardFileRepository.save(freeBoardFileEntity); // 파일 정보 저장
-			}
-		}
+	                File file = new File(savePath);
+	                file.getParentFile().mkdirs(); // 경로가 존재하지 않으면 생성
+	                freeBoardFile.transferTo(file); // 파일 저장
+
+	                FreeBoardFileEntity freeBoardFileEntity = FreeBoardFileEntity.toFreeBoardFileEntity(freeBoard,
+	                        originalFilename, storedFileName);
+	                freeBoardFileRepository.save(freeBoardFileEntity); // 파일 정보 저장
+	            }
+	        }
+	    }
 	}
-	
 
 
 

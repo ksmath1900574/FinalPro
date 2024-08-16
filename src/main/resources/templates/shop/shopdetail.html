@@ -300,11 +300,18 @@
             slides[slideIndex - 1].style.display = "block";
         }
 
-        function openChatWindow2() {
-            var sender = '[[${user.nickname}]]';
-            var receiver = '[[${shop.sellernickname}]]';
-            var chatUrl = '/chat?sender=' + encodeURIComponent(sender) + '&receiver=' + encodeURIComponent(receiver);
-            window.open(chatUrl, 'chatWindow', 'width=900,height=600');
-        }
+		function openChatWindow2() {
+		    var sender = '[[${user.nickname}]]';
+		    var receiver = '[[${shop.sellernickname}]]';
+		    var chatUrl = '/chat?sender=' + encodeURIComponent(sender) + '&receiver=' + encodeURIComponent(receiver);
+		
+		    // 화면의 중앙에 창을 열기 위해 위치 계산
+		    var width = 900;
+		    var height = 600;
+		    var left = (window.screen.width / 2) - (width / 2);
+		    var top = (window.screen.height / 2) - (height / 2);
+		
+		    window.open(chatUrl, 'chatWindow', `width=${width},height=${height},left=${left},top=${top},resizable=yes`);
+		}
     </script>
 </html>
