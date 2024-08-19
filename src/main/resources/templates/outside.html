@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>CoHost - Free Bootstrap 4 Template by Colorlib</title>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>이불밖은위험해</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- SockJS와 Stomp.js -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=213920e00aedac3eb98f084bc572122b&libraries=services"></script>
     <link rel="stylesheet" href="/css/header.css">
     <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
     <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
@@ -20,53 +18,121 @@
     <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
     <link rel="stylesheet" href="/css/jquery.timepicker.css">
     <link rel="stylesheet" href="/css/flaticon.css">
-    <link rel="stylesheet" href="/css/icomoon.css">
+    <link rel="stylesheet" href="/css/icomoon.css">  
     <link rel="stylesheet" href="/css/style.css">
-  </head>
-  <body>
+    <link rel="stylesheet" href="/css/map.css">
+</head>
+<body>
     <!-- 공통 헤더 포함 -->
     <div th:replace="~{common/header :: fragment}"></div>
-
+    
+    <!--  
     <div class="hero-wrap hero-wrap-2" style="background-image: url('images/test.png');" data-stellar-background-ratio="0.5">
-      <div class="overlay"></div>
-      <div class="container">
-        <div class="row no-gutters slider-text align-items-end justify-content-start">
-          <div class="col-md-8 ftco-animate text-center text-md-left mb-5">
-          	<p class="breadcrumbs"><span class="mr-2"><a href="index.html">홈</a></span> <span class="mr-2"><a href="blog.html">이불밖은위험해</a></p>
-            <h1 class="mb-3 bread">이불밖은 위험해</h1>
-          </div>
-        </div>
-      </div>
-    </div>
-      <body>
+        <div class="overlay"></div>
         <div class="container">
-        <span>여기부터 채워 넣으면 됨</span>
-        <div class="col-md-4 sidebar ftco-animate">
-          <div class="sidebar-box">
-            <form action="#" class="search-form">
-              <div class="form-group">
-                <div class="icon">
-                  <span class="icon-search"></span>
+            <div class="row no-gutters slider-text align-items-end justify-content-start">
+                <div class="col-md-8 ftco-animate text-center text-md-left mb-5">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="index.html">홈</a></span> <span class="mr-2"><a href="blog.html">이불밖은위험해</a></span></p>
+                    <h1 class="mb-3 bread">이불밖은 위험해</h1>
                 </div>
-                <input type="text" class="form-control" placeholder="Type a keyword and hit enter">
-              </div>
-            </form>
-          </div>
-        <div class="tag-widget post-tag-container mb-5 mt-5">
-          <div class="tagcloud">
-            <a href="#" class="tag-cloud-link">test1</a>
-            <a href="#" class="tag-cloud-link">test2</a>
-            <a href="#" class="tag-cloud-link">test3</a>
-            <a href="#" class="tag-cloud-link">test4</a>
-            <p></p>
-            <a href="#" class="tag-cloud-link">test5</a>
-            <a href="#" class="tag-cloud-link">test6</a>
-          </div>
+            </div>
         </div>
-</div>
-</div>
+    </div>
+    -->
+    <div class="custom-container">
+    	<div class="map-container">
+            
+            <div id="map"></div>
+            <button id="moveToCurrentLocation" ></button>
+        </div>
+        <div class="custom-row">
+            <!-- 태그 선택 필터 -->
+            <div class="custom-col-md-3">
+            	<div style="margin-top: 20px;">
+                	<h3>태그 필터</h3>
+                </div>
+                <div id="tag-filters" >
+                    <!-- 태그 체크박스가 여기에 동적으로 추가됩니다. -->
+                </div>
+            </div>
+            <div class="divider"></div>
+
+            <!-- 지도 및 상가 리스트 -->
+            <div class="custom-col-md-9">              
+                <div id="store-list">
+                	<div id="store-list-header">
+                    	<h3>상가 리스트</h3>
+                    	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addStoreModal">상가 추가</button>
+                    </div>
+                    <ul id="store-list-items" style="list-style-type: none; padding-left: 0;">
+                        <!-- 상가 리스트가 여기에 동적으로 추가됩니다. -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상가 추가 모달 -->
+    <div class="modal fade" id="addStoreModal" tabindex="-1" role="dialog" aria-labelledby="addStoreModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStoreModalLabel">상가 추가</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="addStoreForm" method="post" enctype="multipart/form-data" action="/api/stores">
+                    <div class="form-group">
+                        <label for="storeName">상가 이름</label>
+                        <input type="text" class="form-control" id="storeName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="storeAddress">주소</label>
+                        <input type="text" class="form-control" id="storeAddress" name="address" required>
+                        <button type="button" id="geocodeButton" class="btn btn-secondary btn-sm mt-2">좌표로 변환</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="storeLatitude">위도</label>
+                        <input type="number" step="0.0001" class="form-control" id="storeLatitude" name="latitude" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="storeLongitude">경도</label>
+                        <input type="number" step="0.0001" class="form-control" id="storeLongitude" name="longitude" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="storePhone">전화번호</label>
+                        <input type="text" class="form-control" id="storePhone" name="phoneNumber">
+                    </div>
+                    <div class="form-group">
+                        <label for="storeDescription">상가 소개</label>
+                        <textarea class="form-control" id="storeDescription" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="storePhoto">상가 사진</label>
+                        <input type="file" class="form-control-file" id="storePhoto" name="photo">
+                    </div>
+                    <!-- 태그 입력 -->
+                    <div class="form-group">
+                        <label for="storeTags">태그 (콤마로 구분)</label>
+                        <input type="text" class="form-control" id="storeTags" name="tags">
+                    </div>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </form>
+            </div>
+        </div>
+    </div>
+ 	<script src="/js/storelist.js"></script>
+    <script src="/js/map.js"></script>
+    
+   
+
+    <!-- Bootstrap JS 및 Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <!-- 공통 푸터 포함 -->
     <div th:replace="~{common/footer :: footer}"></div>
-
-  </body>
+</body>
 </html>
