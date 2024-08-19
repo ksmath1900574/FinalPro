@@ -118,27 +118,30 @@ public class UserService {
 //    }
 
 	public void update(UserDTO userDTO) {
-		Optional<UserEntity> optionalUserEntity = userRepository.findById(userDTO.getSeq());
-		if (optionalUserEntity.isPresent()) {
-			UserEntity userEntity = optionalUserEntity.get();
-			userEntity.setLoginid(userDTO.getLoginid());
+	    Optional<UserEntity> optionalUserEntity = userRepository.findById(userDTO.getSeq());
+	    if (optionalUserEntity.isPresent()) {
+	        UserEntity userEntity = optionalUserEntity.get();
+	        
+	        // 기본 필드만 업데이트
+	        userEntity.setLoginid(userDTO.getLoginid());
 
-			if (!bCryptPasswordEncoder.matches(userDTO.getPw(), userEntity.getPw())) {
-				userEntity.setPw(bCryptPasswordEncoder.encode(userDTO.getPw()));
-			}
+	        if (!bCryptPasswordEncoder.matches(userDTO.getPw(), userEntity.getPw())) {
+	            userEntity.setPw(bCryptPasswordEncoder.encode(userDTO.getPw()));
+	        }
 
-			userEntity.setName(userDTO.getName());
-			userEntity.setNickname(userDTO.getNickname());
-			userEntity.setAddress(userDTO.getAddress());
-			userEntity.setEmail(userDTO.getEmail());
-			userEntity.setTel(userDTO.getTel());
-			userEntity.setRole(userDTO.getRole());
+	        userEntity.setName(userDTO.getName());
+	        userEntity.setNickname(userDTO.getNickname());
+	        userEntity.setAddress(userDTO.getAddress());
+	        userEntity.setEmail(userDTO.getEmail());
+	        userEntity.setTel(userDTO.getTel());
+	        userEntity.setRole(userDTO.getRole());
 
-			userRepository.save(userEntity);
-			System.out.println("업데이트 성공");
-		} else {
-			System.out.println("업데이트 실패: 사용자 없음");
-		}
+	        // 컬렉션 필드는 별도로 처리하지 않고, 엔티티 내부에서 관리
+	        userRepository.save(userEntity);
+	        System.out.println("업데이트 성공");
+	    } else {
+	        System.out.println("업데이트 실패: 사용자 없음");
+	    }
 	}
 
 	public void deleteBySeq(Long seq) {

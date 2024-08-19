@@ -518,13 +518,12 @@
 							</div>
 
 							<!-- 작성자 추가 -->
-								<p class="post-author">
-								    <span id="postAuthorName" th:text="'작성자: ' + ${freeBoard.nickname}"></span>
-								    <span id="messageIcon" class="message-icon" th:data-nickname="${freeBoard.nickname}" th:data-currentuser="${session.nickname}" style="cursor: pointer; margin-left: 10px;">
-								        <i class="fas fa-comment-dots"></i>
-								    </span>
-								</p>
-
+							<p class="post-author">
+							    <span id="postAuthorName" th:text="'작성자: ' + ${freeBoard.nickname}"></span>
+							    <span id="messageIcon" class="message-icon" th:data-nickname="${freeBoard.nickname}" th:data-currentuser="${session.nickname}" style="cursor: pointer; margin-left: 10px;">
+							        <i class="fas fa-comment-dots"></i>
+							    </span>
+							</p>
 							<div class="meta-info">
 								<!-- 작성일 -->
 								<p class="created-time"
@@ -887,7 +886,6 @@
 		});
 	}
 
-
     function openChatWithUser(receiver) {
         const sender = document.getElementById('nickname').innerText;
         
@@ -906,12 +904,13 @@
     }
 
     $(document).ready(function() {
-        // 로그인한 사용자와 작성자가 동일한 경우 메시지 아이콘 숨기기
+        // 로그인 상태와 작성자 비교하여 메시지 아이콘 숨기기
         const messageIcon = $('#messageIcon');
         const postAuthor = messageIcon.data('nickname');
         const currentUser = messageIcon.data('currentuser');
 
-        if (postAuthor === currentUser) {
+        // currentUser가 없거나 작성자와 동일한 경우 아이콘 숨기기
+        if (!currentUser || postAuthor === currentUser) {
             messageIcon.hide();
         }
 

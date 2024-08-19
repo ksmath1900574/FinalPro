@@ -8,6 +8,9 @@ import com.example.myweb.chat.repository.ChatMessageRepository;
 import com.example.myweb.chat.repository.ChatRoomRepository;
 import com.example.myweb.user.entity.UserEntity;
 import com.example.myweb.user.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
@@ -68,6 +71,7 @@ public class ChatService {
     }
     
     // 메세지 저장
+    @Transactional
     public ChatMessageDTO saveMessage(ChatMessageDTO chatMessageDTO) {
         // 발신자와 수신자 정보 가져오기
         UserEntity sender = userRepository.findByNickname(chatMessageDTO.getSender().getNickname())
@@ -89,6 +93,7 @@ public class ChatService {
         chatMessage.setFileUrl(chatMessageDTO.getFileUrl());
         chatMessage.setRead(false);
 
+        // 메세지를 저장
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
         return ChatMessageDTO.toChatMessageDTO(savedMessage);
     }
@@ -121,6 +126,7 @@ public class ChatService {
     }
 
     // 채팅방 생성
+    @Transactional
     private ChatRoom createChatRoom(UserEntity sender, UserEntity receiver) {
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setRoomId(generateRoomId(sender.getNickname(), receiver.getNickname()));

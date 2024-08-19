@@ -131,7 +131,7 @@ public class UserController {
 	@GetMapping("/user/delete/{seq}")
 	public String deleteBySeq(@PathVariable Long seq) {
 		userService.deleteBySeq(seq);
-		return "redirect:/user/userList";
+		return "/";
 	}
 
 	@GetMapping("/user/logout")
