@@ -169,6 +169,11 @@
     <section class="ftco-section">
         <div class="board-main">
             <form method="get" action="/shop/shoplist" class="search-form">
+				<select name="searchType">
+					<option value="productname" th:selected="${searchType == 'productname'}">상품명</option>
+					<option value="seller" th:selected="${searchType == 'seller'}">판매자</option>
+					
+				</select>
                 <input type="text" name="keyword" placeholder="검색어 입력" th:value="${keyword}">
                 <button type="submit">검색하기</button>
             </form>
@@ -182,18 +187,18 @@
             <div class="product-list" th:if="${not noResults}">
                 <div class="product-item" th:each="shop : ${shops}">
                     <a th:href="@{/shop/{nom}(nom=${shop.nom})}">
-        <div class="image-container">
-            <img class="product-img" 
-                 th:if="${shop.imageUrls != null and !shop.imageUrls.isEmpty()}" 
-                 th:src="@{${shop.imageUrls[0]}}" alt="상품 이미지">
-            <img class="product-img" 
-                 th:if="${shop.imageUrls == null or shop.imageUrls.isEmpty()}" 
-                 th:src="@{/images/logo.png}" alt="대체 이미지">
-            <div class="no-image-text" 
-                 th:if="${shop.imageUrls == null or shop.imageUrls.isEmpty()}">
-                이미지가 존재하지 않습니다
-            </div>
-        </div>
+				        <div class="image-container">
+				            <img class="product-img" 
+				                 th:if="${shop.imageUrls != null and !shop.imageUrls.isEmpty()}" 
+				                 th:src="@{${shop.imageUrls[0]}}" alt="상품 이미지">
+				            <img class="product-img" 
+				                 th:if="${shop.imageUrls == null or shop.imageUrls.isEmpty()}" 
+				                 th:src="@{/images/logo.png}" alt="대체 이미지">
+				            <div class="no-image-text" 
+				                 th:if="${shop.imageUrls == null or shop.imageUrls.isEmpty()}">
+				                이미지가 존재하지 않습니다
+				            </div>
+				        </div>
                     </a>
                     <div class="product-info">
                         <div class="product-name" th:text="${shop.productname}"></div>

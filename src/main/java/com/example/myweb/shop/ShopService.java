@@ -31,24 +31,30 @@ public class ShopService {
     }
 
     // 키워드를 사용하여 상품을 검색합니다.
-    public List<ShopEntity> searchShops(String keyword) {
-        return shopRepository.findByProductnameContainingOrDescriptionContaining(keyword, keyword);
+    public Page<ShopEntity> searchShops(String keyword, int page, int size) {
+        return shopRepository.findByProductnameContainingOrDescriptionContaining(keyword, keyword, PageRequest.of(page, size));
+    }
+
+    // 판매자별로 상품 검색
+    public Page<ShopEntity> searchBySeller(String sellerNickname, int page, int size) {
+        return shopRepository.findBySellernicknameContaining(sellerNickname, PageRequest.of(page, size));
+    }
+
+    // 상품명으로 검색
+    public Page<ShopEntity> searchByProductName(String productName, int page, int size) {
+        return shopRepository.findByProductnameContaining(productName, PageRequest.of(page, size));
     }
 
     // 상품 삭제합니다.
     public void deleteShopById(Long nom) {
         shopRepository.deleteById(nom);
     }
-    
+
     // 모든 상품을 페이징 처리하여 가져옵니다.
     public Page<ShopEntity> getAllShops(int page, int size) {
         return shopRepository.findAll(PageRequest.of(page, size));
     }
-    
-    // 키워드를 사용하여 상품을 페이징 처리하여 검색합니다.
-    public Page<ShopEntity> searchShops(String keyword, int page, int size) {
-        return shopRepository.findByProductnameContainingOrDescriptionContaining(keyword, keyword, PageRequest.of(page, size));
-    }
+
     // 판매자가 올린 다른 상품을 조회합니다. 현재 상품은 제외.
     public List<ShopEntity> getOtherShopsBySeller(String sellerNickname, Long excludeNom) {
         return shopRepository.findBySellernicknameAndNomNot(sellerNickname, excludeNom);

@@ -310,7 +310,7 @@ h1, .h1 {
   font-size: 2.5rem; }
 
 h2, .h2 {
-  font-size: 2rem; }
+  font-size: 16px; }
 
 h3, .h3 {
   font-size: 1.75rem; }
@@ -8161,6 +8161,11 @@ h1, h2, h3, h4, h5,
   color: #000;
   font-weight: 400; }
 
+p {
+	font-size: 12px;
+}
+ 
+  
 .text-primary {
   color: #6927ff !important; }
 
@@ -9433,21 +9438,26 @@ textarea.form-control {
         color: #cccccc; }
 
 .block-23 ul {
+	text-align: left;
   padding: 0; }
   .block-23 ul li, .block-23 ul li > a {
-    display: table;
-    line-height: 1.5;
-    margin-bottom: 15px; }
+    display: flex;
+    line-height: 1;
+    margin-bottom: 15px;
+	text-align: left;
+ }
   .block-23 ul li span {
     color: rgba(255, 255, 255, 0.7); }
   .block-23 ul li .icon, .block-23 ul li .text {
     display: table-cell;
-    vertical-align: top; }
+    vertical-align: top;
+	text-align: left; }
   .block-23 ul li .icon {
-    width: 40px;
+    width: 30px;
     font-size: 18px;
     padding-top: 2px;
-    color: white; }
+    color: white;
+	text-align: left; }
 
 .block-6 {
   margin-bottom: 40px; }
@@ -10052,8 +10062,7 @@ textarea.form-control {
     @media (min-width: 1200px) {
       .board-main {
         max-width: 1140px; } }
-  
-  }
+ 
   .board {
     font-size: 25px;
     color: #0056b3;
@@ -10081,7 +10090,7 @@ textarea.form-control {
       .board-main {
         max-width: 1140px; } }
 ul li {
-  font-size: 18px;
+  font-size: 16px;
   padding-right: 10px;
   padding-left: 10px;
   margin-right: auto;
@@ -10116,3 +10125,47 @@ tr th {
   @media (min-width: 1200px) {
     .board-main {
       max-width: 1140px; } }
+	  
+	  .waves {
+	      position: relative;
+	      width: 100%;
+	      height: 15vh;
+	      margin-bottom: -7px; /*Fix for safari gap*/
+	      min-height: 100px;
+	      max-height: 150px;
+	  }
+	  /* Animation */
+	  .parallax > use {
+	      animation: move-forever 25s cubic-bezier(0.55,.5,0.45,.5) infinite;
+	  }
+	  .parallax > use:nth-child(1) {
+	      animation-delay: -2s;
+	      animation-duration: 7s;
+	  }
+	  .parallax > use:nth-child(2) {
+	      animation-delay: -3s;
+	      animation-duration: 10s;
+	  }
+	  .parallax > use:nth-child(3) {
+	      animation-delay: -4s;
+	      animation-duration: 13s;
+	  }
+	  .parallax > use:nth-child(4) {
+	      animation-delay: -5s;
+	      animation-duration: 20s;
+	  }
+	  @keyframes move-forever {
+	      0% {
+	          transform: translate3d(-90px, 0, 0);
+	      }
+	      100% {
+	          transform: translate3d(85px, 0, 0);
+	      }
+	  }
+	  /*Shrinking for mobile*/
+	  @media(max-width: 768px) {
+	      .waves {
+	          height: 40px;
+	          min-height: 40px;
+	      }
+	  }

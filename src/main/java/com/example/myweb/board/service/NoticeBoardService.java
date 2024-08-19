@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,41 +40,37 @@ public class NoticeBoardService {
 	private final UserRepository userRepository;
 
 	public void save(NoticeBoardDTO noticeBoardDTO) throws IllegalStateException, IOException {
-	    // UserEntity를 UserRepository를 통해 조회합니다.
-	    UserEntity userEntity = userRepository
-	            .findByLoginidAndNickname(noticeBoardDTO.getLoginid(), noticeBoardDTO.getNickname()).orElseThrow(
-	                () -> new NoSuchElementException("해당 사용자를 찾을 수 없습니다."));
+		// UserEntity를 UserRepository를 통해 조회합니다.
+		UserEntity userEntity = userRepository
+				.findByLoginidAndNickname(noticeBoardDTO.getLoginid(), noticeBoardDTO.getNickname()).get();
 
-	    // 파일 첨부 여부에 따라 로직 분리
-	    if (noticeBoardDTO.getNoticeboardFile() == null || noticeBoardDTO.getNoticeboardFile().isEmpty()) {
-	        // 첨부 파일 없음
-	        NoticeBoardEntity noticeBoardEntity = NoticeBoardEntity.toSaveEntity(noticeBoardDTO, userEntity);
-	        noticeBoardRepository.save(noticeBoardEntity);
-	    } else {
-	        // 첨부 파일 있음
-	        NoticeBoardEntity noticeBoardEntity = NoticeBoardEntity.toSaveFileEntity(noticeBoardDTO, userEntity);
-	        Long savedSeq = noticeBoardRepository.save(noticeBoardEntity).getSeq(); // 게시글의 seq
-	        NoticeBoardEntity noticeBoard = noticeBoardRepository.findById(savedSeq).orElseThrow(
-	            () -> new NoSuchElementException("게시글 저장에 실패했습니다."));
+		// 파일 첨부 여부에 따라 로직 분리
+		if (noticeBoardDTO.getNoticeboardFile().isEmpty()) {
+			// 첨부 파일 없음
+			NoticeBoardEntity noticeBoardEntity = NoticeBoardEntity.toSaveEntity(noticeBoardDTO, userEntity);
+			noticeBoardRepository.save(noticeBoardEntity);
+		} else {
+			// 첨부 파일 있음
+			NoticeBoardEntity noticeBoardEntity = NoticeBoardEntity.toSaveFileEntity(noticeBoardDTO, userEntity);
+			Long savedSeq = noticeBoardRepository.save(noticeBoardEntity).getSeq(); // 게시글의 seq
+			NoticeBoardEntity noticeBoard = noticeBoardRepository.findById(savedSeq).get(); // 게시글의 정보를 가져옴
+			for (MultipartFile noticeBoardFile : noticeBoardDTO.getNoticeboardFile()) {
+				String originalFilename = noticeBoardFile.getOriginalFilename(); // 파일의 이름 가져옴
+				String storedFileName = System.currentTimeMillis() + "_" + originalFilename; // 서버 저장용 이름 생성
+				String savePath = new File("/src/main/resources/static/upload/").getAbsolutePath() + "/"
+						+ storedFileName;
 
-	        for (MultipartFile noticeBoardFile : noticeBoardDTO.getNoticeboardFile()) {
-	            if (!noticeBoardFile.isEmpty()) {
-	                String originalFilename = noticeBoardFile.getOriginalFilename(); // 파일의 이름 가져옴
-	                String storedFileName = System.currentTimeMillis() + "_" + originalFilename; // 서버 저장용 이름 생성
-	                String savePath = new File("/src/main/resources/static/upload/").getAbsolutePath() + "/"
-	                        + storedFileName;
+				File file = new File(savePath);
+				file.getParentFile().mkdirs(); // 경로가 존재하지 않으면 생성
+				noticeBoardFile.transferTo(file); // 파일 저장
 
-	                File file = new File(savePath);
-	                file.getParentFile().mkdirs(); // 경로가 존재하지 않으면 생성
-	                noticeBoardFile.transferTo(file); // 파일 저장
-
-	                NoticeBoardFileEntity noticeBoardFileEntity = NoticeBoardFileEntity.toNoticeBoardFileEntity(noticeBoard,
-	                        originalFilename, storedFileName);
-	                noticeBoardFileRepository.save(noticeBoardFileEntity); // 파일 정보 저장
-	            }
-	        }
-	    }
+				NoticeBoardFileEntity noticeBoardFileEntity = NoticeBoardFileEntity.toNoticeBoardFileEntity(noticeBoard,
+						originalFilename, storedFileName);
+				noticeBoardFileRepository.save(noticeBoardFileEntity); // 파일 정보 저장
+			}
+		}
 	}
+	
 
 
 
@@ -109,16 +104,6 @@ public class NoticeBoardService {
 		}
 	}
 
-//	@Transactional
-//	public NoticeBoardDTO update(NoticeBoardDTO noticeBoardDTO) {
-//		UserEntity userEntity = userRepository
-//				.findByLoginidAndNickname(noticeBoardDTO.getLoginid(), noticeBoardDTO.getNickname()).get();
-//		NoticeBoardEntity noticeBoareEntity = NoticeBoardEntity.toUpdateEntity(noticeBoardDTO, userEntity);
-//		noticeBoardRepository.save(noticeBoareEntity);
-//
-//		return findBySeq(noticeBoardDTO.getSeq());
-//	}
-//
 	public void delete(Long seq) {
 		noticeBoardRepository.deleteById(seq);
 	}
@@ -151,37 +136,7 @@ public class NoticeBoardService {
 	}
 
 
-//	@Transactional
-//	public Page<NoticeBoardDTO> paging(Pageable pageable) {
-//		int page = pageable.getPageNumber();
-//		if (page < 0) {
-//			page = 0;
-//		} else {
-//			page -= 1;
-//		}
-//		int pageLimit = 3; // 한 페이지에 보여줄 글 갯수
-//		// 한페이지당 3개씩 글을 보여주고 정렬 기준은 seq 기준으로 내림차순 정렬
-//		// page 위치에 있는 값은 0부터 시작
-//		Page<NoticeBoardEntity> noticeBoardEntities = noticeBoardRepository
-//				.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
-//
-//		System.out.println("noticeBoardEntities.getContent() = " + noticeBoardEntities.getContent()); // 요청 페이지에 해당하는 글
-//		System.out.println("noticeBoardEntities.getTotalElements() = " + noticeBoardEntities.getTotalElements()); // 전체 글갯수
-//		System.out.println("noticeBoardEntities.getNumber() = " + noticeBoardEntities.getNumber()); // DB로 요청한 페이지 번호
-//		System.out.println("noticeBoardEntities.getTotalPages() = " + noticeBoardEntities.getTotalPages()); // 전체 페이지 갯수
-//		System.out.println("noticeBoardEntities.getSize() = " + noticeBoardEntities.getSize()); // 한 페이지에 보여지는 글 갯수
-//		System.out.println("noticeBoardEntities.hasPrevious() = " + noticeBoardEntities.hasPrevious()); // 이전 페이지 존재 여부
-//		System.out.println("noticeBoardEntities.isFirst() = " + noticeBoardEntities.isFirst()); // 첫 페이지 여부
-//		System.out.println("noticeBoardEntities.isLast() = " + noticeBoardEntities.isLast()); // 마지막 페이지 여부
-//
-//		// 목록: seq, nickname, title, views, likeCount, createdTime
-//		// seq, tag, title, createdTime, views, lickCount, nickname
-//		Page<NoticeBoardDTO> noticeBoardDTOS = noticeBoardEntities.map(noticeBoard -> new NoticeBoardDTO(noticeBoard.getSeq(),
-//				noticeBoard.getTag(), noticeBoard.getTitle(), noticeBoard.getCreatedTime(), noticeBoard.getViews(),
-//				noticeBoard.getLikeCount(), noticeBoard.getNickname()));
-//
-//		return noticeBoardDTOS;
-//	}
+
 	
 	@Transactional
 	public Page<NoticeBoardDTO> paging(Pageable pageable, String tag, String search) {
