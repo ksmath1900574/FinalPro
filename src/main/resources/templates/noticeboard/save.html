@@ -176,14 +176,15 @@ hr.separator {
                     <span class="board-tag">공지사항</span>
                     	<!-- 구분선 -->
     <hr class="separator">
-<form action="/noticeboard/save" method="post" enctype="multipart/form-data">
+<form action="/noticeboard/save" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+
     <input type="hidden" name="loginid" th:value="${session.loginid}">
     
     <label for="nickname">작성자:</label>
     <input type="text" name="nickname" id="nickname" th:value="${session.nickname}" readonly>
 
     <div style="display: flex; flex-direction: column;">
-		<!--
+
         <label for="tag">태그를 선택해주세요</label>
         <select name="tag">
             <option value="FAQ">FAQ</option>
@@ -191,7 +192,7 @@ hr.separator {
             <option value="점검">점검</option>
             <option value="일반공지">일반공지</option>
         </select>
-        -->
+
         <label for="title">제목:</label>
         <input type="text" name="title" id="title" style="width: 100%;">
     </div>
@@ -234,14 +235,34 @@ hr.separator {
             .create(document.querySelector('#editor'), {
                 language: "ko",
                 ckfinder: {
-                    uploadUrl: '/uploadImage', // 파일 업로드 엔드포인트 설정
+                    uploadUrl: '/uploadImageNoticeBoard', // 파일 업로드 엔드포인트 설정
                     withCredentials: true
                 }
             })
             .catch(error => {
                 console.error(error);
             });
+            
     </script>
+    <script>
+    function validateForm() {
+        const title = document.getElementById('title').value.trim();
+        const contents = document.querySelector('.ck-editor__editable').innerText.trim();
+
+        if (title === "") {
+            alert("제목을 입력해주세요.");
+            return false;
+        }
+
+        if (contents === "") {
+            alert("내용을 입력해주세요.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
 </body>
 
 </html>

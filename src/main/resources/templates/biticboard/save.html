@@ -176,7 +176,7 @@ hr.separator {
                     <span class="board-tag">자랑게시판</span>
                     	<!-- 구분선 -->
     <hr class="separator">
-<form action="/biticboard/save" method="post" enctype="multipart/form-data">
+<form action="/biticboard/save" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
     <input type="hidden" name="loginid" th:value="${session.loginid}">
     
     <label for="nickname">작성자:</label>
@@ -231,19 +231,38 @@ hr.separator {
 
     <div th:replace="~{common/footer :: footer}"></div>
     <!-- CKEditor 인스턴스 초기화 -->
-    <script>
-        ClassicEditor
-            .create(document.querySelector('#editor'), {
-                language: "ko",
-                ckfinder: {
-                    uploadUrl: '/uploadImage', // 파일 업로드 엔드포인트 설정
-                    withCredentials: true
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    </script>
+	<script>
+	    ClassicEditor
+	        .create(document.querySelector('#editor'), {
+	            language: "ko",
+	            ckfinder: {
+	                uploadUrl: '/uploadImageBiticBoard', // 파일 업로드 엔드포인트 설정
+	                withCredentials: true
+	            }
+	        })
+	        .catch(error => {
+	            console.error(error);
+	        });
+	</script>
+	<script>
+    function validateForm() {
+        const title = document.getElementById('title').value.trim();
+        const contents = document.querySelector('.ck-editor__editable').innerText.trim();
+
+        if (title === "") {
+            alert("제목을 입력해주세요.");
+            return false;
+        }
+
+        if (contents === "") {
+            alert("내용을 입력해주세요.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
 </body>
 
 </html>
