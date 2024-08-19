@@ -461,7 +461,6 @@
 		}
 		
 		
-		/* 날짜와 닉네임 스타일 */
 		.sidebar-box .text .meta span,
 		.sidebar-box .text .meta a {
 		    color: #555 !important; /* 날짜, 닉네임, 추천수 및 모든 링크의 텍스트 색상 통일 */
@@ -471,6 +470,7 @@
 		.sidebar-box .text .meta .icon-person {
 		    color: #555 !important; /* 아이콘 색상 통일 */
 		}
+
 		
 		.sidebar-box .meta div {
 		    display: flex; /* 아이콘과 텍스트를 한 줄에 배치 */
@@ -487,7 +487,15 @@
 		    margin-bottom: 20px; /* 아래쪽 여백 */
 		}
 		
-			</style>
+.message-icon {
+    color: #888;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.message-icon:hover {
+    color: #333;
+}		</style>
 </head>
 
 <body>
@@ -510,7 +518,12 @@
 							</div>
 
 							<!-- 작성자 추가 -->
-							<p class="post-author" th:text="'작성자: ' + ${freeBoard.nickname}"></p>
+								<p class="post-author">
+								    <span id="postAuthorName" th:text="'작성자: ' + ${freeBoard.nickname}"></span>
+								    <span id="messageIcon" class="message-icon" th:data-nickname="${freeBoard.nickname}" th:data-currentuser="${session.nickname}" style="cursor: pointer; margin-left: 10px;">
+								        <i class="fas fa-comment-dots"></i>
+								    </span>
+								</p>
 
 							<div class="meta-info">
 								<!-- 작성일 -->
@@ -875,8 +888,38 @@
 	}
 
 
+    function openChatWithUser(receiver) {
+        const sender = document.getElementById('nickname').innerText;
+        
+        const width = 900;
+        const height = 600;
+        
+        const left = (window.screen.width / 2) - (width / 2);
+        const top = (window.screen.height / 2) - (height / 2);
+        
+        const chatWindow = window.open(
+            `/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`,
+            'ChatWindow',
+            `width=${width},height=${height},left=${left},top=${top}`
+        );
+        chatWindow.focus();
+    }
 
+    $(document).ready(function() {
+        // 로그인한 사용자와 작성자가 동일한 경우 메시지 아이콘 숨기기
+        const messageIcon = $('#messageIcon');
+        const postAuthor = messageIcon.data('nickname');
+        const currentUser = messageIcon.data('currentuser');
 
+        if (postAuthor === currentUser) {
+            messageIcon.hide();
+        }
+
+        // 메시지 아이콘 클릭 시 채팅 창 열기
+        messageIcon.click(function() {
+            openChatWithUser(postAuthor);
+        });
+    });
 </script>
 
 </html>

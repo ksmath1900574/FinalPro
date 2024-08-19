@@ -236,7 +236,7 @@ function updateUnreadCount(unreadCount) {
 }
 
 function openChatWindow(sender, receiver) {
-    let width = localStorage.getItem('chatWindowWidth') || 800;
+    let width = localStorage.getItem('chatWindowWidth') || 900;
     let height = localStorage.getItem('chatWindowHeight') || 600;
 
     // 화면의 중앙에 창을 열기 위해 위치 계산
@@ -250,7 +250,7 @@ function openChatWindow(sender, receiver) {
         `width=${width},height=${height},left=${left},top=${top},resizable=yes`
     );
 
-    const minWidth = 400;
+    const minWidth =900;
     const minHeight = 600;
 
     chatWindow.addEventListener('resize', () => {
