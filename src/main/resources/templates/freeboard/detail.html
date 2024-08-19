@@ -30,54 +30,63 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 	<style>
-		.board-container {
-			background-color: #f9f7f7;
-			border: 1px solid #eaeaea;
-			border-radius: 8px;
-			padding: 20px;
-			max-width: 800px;
-			margin: 0 auto;
-			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-			font-family: 'Work Sans', sans-serif;
-			color: #333;
-		}
+	    .board-container {
+	        background-color: #f9f7f7;
+	        border: 1px solid #eaeaea;
+	        border-radius: 8px;
+	        padding: 20px;
+	        max-width: 800px;
+	        margin: 0 auto;
+	        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+	        font-family: 'Work Sans', sans-serif;
+	        color: #333;
+	    }
 
 		h2 {
 			font-size: 24px;
 			margin-bottom: 10px;
 		}
 
-		.created-time {
-			font-size: 14px;
-			color: #999;
-			margin-bottom: 20px;
-		}
+	    .created-time {
+	        font-size: 14px;
+	        color: #999;
+	        margin-top: 10px;
+	    }
+
 
 		.content-section {
 			margin-bottom: 20px;
 		}
 
-		.title-container {
-			display: flex;
-			justify-content: space-between;
-			/* 제목을 왼쪽, 조회수를 오른쪽에 배치 */
-			align-items: center;
-			/* 수직 정렬 */
-			margin-bottom: 10px;
-			/* 제목과 아래 요소 간의 간격 */
-		}
+	.title-container {
+	    margin-bottom: 5px; /* 제목과 작성자 사이의 간격 */
+	}
+	    .title {
+	        font-size: 24px;
+	        margin: 0;
+	        font-weight: bold;
+	        color: #4a4a4a; /* 제목에 진한 색상 추가 */
+	    }
 
-		.title {
-			font-size: 24px;
-			margin: 0;
-			/* 제목의 기본 마진 제거 */
-		}
+.views-count {
+    color: #999;
+}
 
-		.views-count {
-			font-size: 14px;
-			color: #666;
-		}
-
+.post-author {
+    font-size: 16px;
+    color: #888;
+    margin-bottom: 10px; /* 작성자와 날짜/조회수 사이의 간격 */
+}
+.meta-info {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #999;
+}
+.meta-info .separator {
+    margin: 0 10px; /* 구분선 양쪽 간격 */
+    color: #ddd; /* 구분선 색상 */
+}
 		.post-image {
 			max-width: 100%;
 			height: auto;
@@ -93,11 +102,6 @@
 			font-size: 14px;
 			color: #666;
 		}
-
-
-
-
-
 
 
 		.comment-section {
@@ -143,7 +147,7 @@
 		}
 
 		#comment-write-btn {
-			background-color: #8e24aa;
+			background-color: rgb(105,39,255);
 			color: #fff;
 			border: none;
 			border-radius: 5px;
@@ -163,7 +167,7 @@
 		}
 
 		#comment-write-btn:hover {
-			background-color: #6a1b9a;
+			background-color: rgb(105,39,255);
 		}
 
 		#comment-list {
@@ -322,13 +326,13 @@
 			/* 이미지 위아래에 약간의 여백 추가 */
 		}
 
-		.post-image {
-			max-width: 100%;
-			height: auto;
-			margin-top: 10px;
-			border-radius: 5px;
-			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-		}
+	    .post-image {
+	        max-width: 100%;
+	        height: auto;
+	        margin-top: 20px;
+	        border-radius: 5px;
+	        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+	    }
 
 
 		/*구분선*/
@@ -340,79 +344,88 @@
 		}
 
 
-		.likeandupdate-container {
-			display: flex;
-			flex-direction: column;
-			/* 수정 버튼을 아래로 배치 */
-			align-items: center;
-			/* 좋아요 버튼과 추천수를 가운데 정렬 */
-			margin-bottom: 20px;
-			/* 컨테이너와 아래 요소 간의 간격 */
-		}
+	    .likeandupdate-container {
+	        display: flex;
+	        flex-direction: column;
+	        align-items: center;
+	        margin-top: 20px;
+	        padding-top: 20px;
+	    }
 
-		.like-container {
-			display: flex;
-			align-items: center;
-			/* 좋아요 버튼과 추천수를 수직 정렬 */
-			justify-content: center;
-			/* 좋아요 버튼과 추천수를 가운데 정렬 */
-			margin-bottom: 10px;
-			/* 좋아요 버튼과 수정 버튼 사이 간격 */
-		}
+	    .like-container {
+	        display: flex;
+	        align-items: center;
+	        justify-content: center;
+	        margin-bottom: 10px;
+	    }
 
-		.like-container #likeButton {
-			background-color: #6a1b9a;
-			color: #fff;
-			border: none;
-			border-radius: 5px;
-			padding: 5px 10px;
-			/* 버튼의 패딩 조정 */
-			cursor: pointer;
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 16px;
-			/* 아이콘 크기를 조정 */
-			margin-right: 10px;
-			/* 좋아요 버튼과 추천수 사이 간격 */
-		}
 
-		.like-container #likeButton:hover {
-			background-color: #4a148c;
-		}
+	    .like-container #likeButton {
+	        background-color:rgb(105,39,255);
+	        color: #fff;
+	        border: none;
+	        border-radius: 5px;
+	        padding: 5px 10px;
+	        cursor: pointer;
+	        font-size: 16px;
+	        margin-right: 10px;
+	    }
 
-		.like-count {
-			font-size: 16px;
-			color: #666;
-		}
 
-		.update-button {
-			align-self: flex-end;
-			/* 수정 버튼을 오른쪽 정렬 */
-			margin-top: 10px;
-			/* 좋아요 컨테이너와 수정 버튼 사이 간격 */
-		}
+	    .like-container #likeButton:hover {
+	        background-color:rgb(105,39,255);
+	    }
+	
+	    .like-count {
+	        font-size: 16px;
+	        color: #666;
+	    }
+    .update-button {
+        align-self: flex-end;
+        margin-top: 10px;
+    }
 
-		.update-button #updateButton,
-		.update-button #deleteButton {
-			background-color: #6a1b9a;
-			color: #fff;
-			border: none;
-			border-radius: 5px;
-			padding: 5px 10px;
-			/* 버튼의 패딩 조정 */
-			cursor: pointer;
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 16px;
-			/* 아이콘 크기를 조정 */
-		}
+    .update-button #editButton,
+    .update-button #deleteButton {
+        background-color:rgb(105,39,255);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 16px;
+    }
 
-		.update-button #updateButton:hover,
-		.update-button #deleteButton:hover {
-			background-color: #4a148c;
-		}
+    .update-button #editButton:hover,
+    .update-button #deleteButton:hover {
+        background-color:rgb(105,39,255);
+    }
+    
+        .list-button {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .list-button #listButton {
+        background-color:rgb(105,39,255);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .list-button #listButton:hover {
+        background-color:rgb(105,39,255);
+    }
+    
+    .categories li a.active {
+	display: inline-block; /* 글자 크기에 맞게 배경색*/
+	color :  rgb(64, 0, 64); /*글자색*/
+	background-color: rgb(239, 223, 255); /*배경색*/
+	border-radius: 30px
+}
 	</style>
 </head>
 
@@ -428,33 +441,39 @@
 							<span class="post-tag" th:text="${freeBoard.tag}"></span> <!-- 태그 -->
 							<span class="board-tag">자유게시판</span>
 
-							<!-- 구분선 -->
-							<hr class="separator">
-							<!-- 제목과 조회수 컨테이너 -->
-							<div class="title-container">
-								<h2 class="title" th:text="${freeBoard.title}">제목</h2> <!-- 글 제목 -->
-								<!-- 작성자 추가 -->
-								<span class="post-author">작성자: <span th:text="${freeBoard.nickname}"></span></span>
-								<span class="views-count">조회수: <span th:text="${freeBoard.views}"></span></span>
-							</div>
 
-							<p class="created-time" th:text="${freeBoard.createdTime}"></p> <!-- 작성일 -->
+							<hr class="separator">
+<div class="title-container">
+    <!-- 제목 -->
+    <h2 class="title" th:text="${freeBoard.title}">제목</h2>
+</div>
+
+<!-- 작성자 추가 -->
+<p class="post-author" th:text="'작성자: ' + ${freeBoard.nickname}"></p>
+
+<div class="meta-info">
+    <!-- 작성일 -->
+    <p class="created-time" th:text="${#temporals.format(freeBoard.createdTime, 'yyyy-MM-dd HH:mm')}"></p>
+    
+    <!-- 구분선 -->
+    <span class="separator">|</span>
+    
+    <!-- 조회수 -->
+    <span class="views-count">조회수: <span th:text="${freeBoard.views}"></span></span>
+</div>
+
 							<!-- 구분선 -->
 							<hr class="separator">
+
 							<div class="content-section">
 								<div class="content" th:utext="${freeBoard.contents}"></div> <!-- 글 내용 -->
 
 								<!-- 이미지가 있는 경우에만 표시 -->
 								<div th:if="${freeBoard.fileAttached == 1}" class="image-section">
-									<a th:each="fileName : ${freeBoard.storedFileName}"
-										th:href="@{|/upload/${fileName}|}" target="_blank">
-										<img th:src="@{|/upload/${fileName}|}" class="post-image">
-									</a>
 								</div>
 							</div>
-							<!-- 구분선 -->
-							<hr class="separator">
 
+							<hr class="separator">
 							<div class="likeandupdate-container">
 								<div class="like-container">
 									<button id="likeButton" onclick="toggleLike()">좋아요</button>
@@ -491,7 +510,7 @@
 
 
 						</div>
-
+						
 						<!-- 댓글 출력 부분 -->
 						<div id="comment-list">
 							<table>
