@@ -438,7 +438,7 @@
 					<h2 class="mb-3">
 						<div class="board-container">
 							<span class="post-tag" th:text="${biticBoard.tag}"></span> <!-- 태그 -->
-							<span class="board-tag">자유게시판</span>
+							<span class="board-tag">자랑게시판</span>
 
 
 							<hr class="separator">
@@ -481,12 +481,10 @@
 								</div>
 
 								<!-- 로그인한 사용자가 작성자인 경우에만 수정 버튼을 표시 -->
-								<div class="update-button" th:if="${isAuthor}">
-									<button id="editButton" onclick="updateReq()">수정</button>
-
-									<button id="deleteButton" onclick="deleteReq()">삭제</button>
-								</div>
-
+<div class="update-button" th:if="${isAuthor} or ${isAdmin}">
+    <button id="editButton" th:if="${isAuthor}" onclick="updateReq()">수정</button>
+    <button id="deleteButton" onclick="deleteReq()">삭제</button>
+</div>
 								<!-- 목록으로 버튼 추가 -->
 								<div class="list-button">
 									<button id="listButton" onclick="listReq()">목록으로</button>

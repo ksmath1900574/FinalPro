@@ -332,17 +332,33 @@ select[name="tag"] {
                 </table>
             </h2>
 <div class="pagination">
-    <a th:href="@{/biticboard/paging(page=1, tag=${currentTag}, search=${searchKeyword})}"><<</a>
-    <a th:href="${biticBoardList.first} ? '#' : @{/biticboard/paging(page=${biticBoardList.number}, tag=${currentTag}, search=${searchKeyword})}"><</a>
+    <!-- << 링크: 첫 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!biticBoardList.first}">
+        <a th:href="@{/biticboard/paging(page=1, search=${searchKeyword})}"><<</a>
+    </span>
+
+    <!-- < 링크: 첫 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!biticBoardList.first}">
+        <a th:href="@{/biticboard/paging(page=${biticBoardList.number}, search=${searchKeyword})}"><</a>
+    </span>
+
+    <!-- 페이지 번호 -->
     <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
         <span th:if="${page == biticBoardList.number + 1}" th:text="${page}" class="current-page"></span>
-
         <span th:unless="${page == biticBoardList.number + 1}">
-            <a th:href="@{/biticboard/paging(page=${page}, tag=${currentTag}, search=${searchKeyword})}" th:text="${page}"></a>
+            <a th:href="@{/biticboard/paging(page=${page}, search=${searchKeyword})}" th:text="${page}"></a>
         </span>
     </span>
-    <a th:href="${biticBoardList.last} ? '#' : @{/biticboard/paging(page=${biticBoardList.number + 2}, tag=${currentTag}, search=${searchKeyword})}">></a>
-    <a th:href="@{/biticboard/paging(page=${biticBoardList.totalPages}, tag=${currentTag}, search=${searchKeyword})}">>></a>
+
+    <!-- > 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!biticBoardList.last}">
+        <a th:href="@{/biticboard/paging(page=${biticBoardList.number + 2}, search=${searchKeyword})}">></a>
+    </span>
+
+    <!-- >> 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!biticBoardList.last}">
+        <a th:href="@{/biticboard/paging(page=${biticBoardList.totalPages}, search=${searchKeyword})}">>></a>
+    </span>
 </div>
             <a href="/biticboard/save" class="btn">글작성</a>
         </div>

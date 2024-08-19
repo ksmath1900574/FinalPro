@@ -332,17 +332,33 @@ select[name="tag"] {
                 </table>
             </h2>
 <div class="pagination">
-    <a th:href="@{/freeboard/paging(page=1, tag=${currentTag}, search=${searchKeyword})}"><<</a>
-    <a th:href="${freeBoardList.first} ? '#' : @{/freeboard/paging(page=${freeBoardList.number}, tag=${currentTag}, search=${searchKeyword})}"><</a>
+    <!-- << 링크: 첫 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.first}">
+        <a th:href="@{/freeboard/paging(page=1, search=${searchKeyword})}"><<</a>
+    </span>
+
+    <!-- < 링크: 첫 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.first}">
+        <a th:href="@{/freeboard/paging(page=${freeBoardList.number}, search=${searchKeyword})}"><</a>
+    </span>
+
+    <!-- 페이지 번호 -->
     <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
         <span th:if="${page == freeBoardList.number + 1}" th:text="${page}" class="current-page"></span>
-
         <span th:unless="${page == freeBoardList.number + 1}">
-            <a th:href="@{/freeboard/paging(page=${page}, tag=${currentTag}, search=${searchKeyword})}" th:text="${page}"></a>
+            <a th:href="@{/freeboard/paging(page=${page}, search=${searchKeyword})}" th:text="${page}"></a>
         </span>
     </span>
-    <a th:href="${freeBoardList.last} ? '#' : @{/freeboard/paging(page=${freeBoardList.number + 2}, tag=${currentTag}, search=${searchKeyword})}">></a>
-    <a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages}, tag=${currentTag}, search=${searchKeyword})}">>></a>
+
+    <!-- > 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.last}">
+        <a th:href="@{/freeboard/paging(page=${freeBoardList.number + 2}, search=${searchKeyword})}">></a>
+    </span>
+
+    <!-- >> 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.last}">
+        <a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages}, search=${searchKeyword})}">>></a>
+    </span>
 </div>
             <a href="/freeboard/save" class="btn">글작성</a>
         </div>
