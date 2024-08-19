@@ -150,19 +150,22 @@ public class ShopController {
     // 페이징된 모든 상품 목록을 가져옵니다. 검색어가 있을 경우 검색 결과에 따른 목록 출력, 검색어가 없을 경우 안내
     @GetMapping("/shoplist")
     public String getAllShops(@RequestParam(required = false) String keyword, 
+    						  @RequestParam(required = false, defaultValue = "product") String searchType, 
                               @RequestParam(defaultValue = "1") int page, 
                               @RequestParam(defaultValue = "10") int size, 
                               Model model, HttpSession session) {
+    	
         Page<ShopEntity> shopPage;
 
         if (keyword != null && !keyword.isEmpty()) {
-            shopPage = shopService.searchShops(keyword, page - 1, size);
+        	if("seller".equals(searchType)) {
+        		shopPage = shopService.searchBySeller(keyword, page - 1, size);
+        	}else {
+        		shopPage = shopService.searchByProductName(keyword, page - 1, size);
+        	}
             model.addAttribute("keyword", keyword);  // 검색어를 다시 뷰로 전달
-            if (shopPage.isEmpty()) {
-                model.addAttribute("noResults", true);  // 검색 결과가 없음을 나타내는 플래그
-            } else {
-                model.addAttribute("noResults", false);
-            }
+            model.addAttribute("searchType", searchType);	//검색유형을 뷰로 전달
+            model.addAttribute("noResults", shopPage.isEmpty());  // 검색 결과가 없음을 나타내는 플래그
         } else {
             shopPage = shopService.getAllShops(page - 1, size);
             model.addAttribute("noResults", false);  // 전체 목록일 때는 결과가 항상 있음

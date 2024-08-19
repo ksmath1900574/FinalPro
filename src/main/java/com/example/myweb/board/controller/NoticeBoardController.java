@@ -60,18 +60,7 @@ public class NoticeBoardController {
 		return "redirect:/noticeboard/paging";
 	}
 
-//	@PostMapping("/save")
-//	public String save(NoticeBoardDTO noticeBoardDTO, RedirectAttributes redirectAttributes) {
-//	    try {
-//	        noticeBoardService.save(noticeBoardDTO);
-//	        redirectAttributes.addFlashAttribute("message", "게시글이 성공적으로 저장되었습니다.");
-//	    } catch (IOException e) {
-//	        e.printStackTrace();
-//	        redirectAttributes.addFlashAttribute("errorMessage", "파일 업로드 중 오류가 발생했습니다.");
-//	        return "redirect:/noticeboard/write";  // 에러 발생 시 작성 페이지로 리다이렉트
-//	    }
-//	    return "redirect:/noticeboard/paging";
-//	}
+
 
 	@GetMapping("/boardList")
 	public String findAll(Model model) {
@@ -82,65 +71,7 @@ public class NoticeBoardController {
 		return "noticeboard/boardList.html";
 	}
 	
-//	@GetMapping("/{seq}")
-//	public String findBySeq(@PathVariable Long seq, Model model, @PageableDefault(page = 1) Pageable pageable) {
-//		/*
-//		 * 해당 게시글의 조회수를 하나 올리고 게시글 데이터를 가져와서 detail.html에 출력
-//		 */
-//		noticeBoardService.incrementViews(seq);
-//		NoticeBoardDTO noticeBoardDTO = noticeBoardService.findBySeq(seq);
-////		댓글 목록 가져오기
-//		List<NoticeBoardCommentDTO> noticeBoardCommentDTOList = noticeBoardCommentService.findAll(seq);
-//
-//		model.addAttribute("noticeBoardCommentList", noticeBoardCommentDTOList);
-//		model.addAttribute("noticeBoard", noticeBoardDTO);
-//		model.addAttribute("page", pageable.getPageNumber());
-//		System.out.println(noticeBoardDTO.getStoredFileName());
-//		System.out.println(noticeBoardDTO.getFileAttached());
-//
-//		return "noticeboard/detail.html";
-//	}
-/*
-	@GetMapping("/{seq}")
-	public String findBySeq(@PathVariable Long seq, Model model, HttpSession session,
-			@PageableDefault(page = 1) Pageable pageable) {
-		// 세션에서 조회한 게시글 ID 목록을 가져옵니다.
-		Set<Long> viewedBoardIds = (Set<Long>) session.getAttribute("viewedBoardIds");
-		if (viewedBoardIds == null) {
-			viewedBoardIds = new HashSet<>();
-			session.setAttribute("viewedBoardIds", viewedBoardIds);
-		}
 
-		// 이 게시글이 이전에 조회된 적 있는지 확인합니다.
-		if (!viewedBoardIds.contains(seq)) {
-			// 조회수 증가 로직을 수행합니다.
-			noticeBoardService.incrementViews(seq);
-			// 이 게시글을 세션에 조회한 목록에 추가합니다.
-			viewedBoardIds.add(seq);
-			session.setAttribute("viewedBoardIds", viewedBoardIds);
-		}
-
-		// 게시글 데이터를 가져와서 detail.html에 출력
-		NoticeBoardDTO noticeBoardDTO = noticeBoardService.findBySeq(seq);
-		List<NoticeBoardCommentDTO> noticeBoardCommentDTOList = noticeBoardCommentService.findAll(seq);
-	    // 세션에서 로그인 사용자 ID를 가져옵니다.
-	    String loginid = (String) session.getAttribute("loginid");
-
-	    // 로그인 사용자가 작성자인지 여부를 확인합니다.
-	    boolean isAuthor = loginid != null && loginid.equals(noticeBoardDTO.getLoginid());
-
-		model.addAttribute("noticeBoardCommentList", noticeBoardCommentDTOList);
-		model.addAttribute("noticeBoard", noticeBoardDTO);
-		model.addAttribute("page", pageable.getPageNumber());
-		model.addAttribute("isAuthor", isAuthor);  // 작성자 여부를 모델에 추가
-	    // 인기글 가져오기 - 상위 3개만 가져오기
-	    List<NoticeBoardDTO> popularPosts = noticeBoardService.getTop3PopularPosts();
-	    
-	    // 모델에 인기글 추가
-	    model.addAttribute("popularPosts", popularPosts);
-		return "noticeboard/detail.html";
-	}
-*/
 	@GetMapping("/{seq}")
 	public String findBySeq(@PathVariable Long seq,
 	                        @RequestParam(defaultValue = "1") int page, // 현재 페이지를 파라미터로 받음
@@ -170,6 +101,7 @@ public class NoticeBoardController {
 	    
 	    // 세션에서 로그인 사용자 ID를 가져옵니다.
 	    String loginid = (String) session.getAttribute("loginid");
+	    String nickname = (String) session.getAttribute("nickname");
 	    
 	    // 로그인 사용자가 작성자인지 여부를 확인합니다.
 	    boolean isAuthor = loginid != null && loginid.equals(noticeBoardDTO.getLoginid());
@@ -179,6 +111,7 @@ public class NoticeBoardController {
 	    model.addAttribute("noticeBoard", noticeBoardDTO);
 	    model.addAttribute("page", page); // 현재 페이지 정보를 추가
 	    model.addAttribute("isAuthor", isAuthor); // 작성자 여부를 모델에 추가
+	    model.addAttribute("nickname", nickname); // 로그인 사용자 ID 추가
 	    
 	    // 인기글 가져오기 - 상위 3개만 가져오기
 	    List<NoticeBoardDTO> popularPosts = noticeBoardService.getTop3PopularPosts();
@@ -218,35 +151,6 @@ public class NoticeBoardController {
 
 		return "redirect:/noticeboard/paging";
 	}
-
-	// /noticeboard/paging?page=1
-//	@GetMapping("/paging")
-//	public String paging(@PageableDefault(page = 1) Pageable pageable, Model model) {
-////		pageable.getPageNumber();
-//		Page<NoticeBoardDTO> noticeBoardList = noticeBoardService.paging(pageable);
-//		int blockLimit = 3;
-//		int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1; // 1
-//																													// 4
-//																													// 7
-//																													// 10
-//																													// ~~
-//		int endPage = ((startPage + blockLimit - 1) < noticeBoardList.getTotalPages()) ? startPage + blockLimit - 1
-//				: noticeBoardList.getTotalPages();
-//		// page 갯수 20개
-//		// 현재 사용자가 3페이지
-//		// 1 2 3
-//		// 현재 사용자가 7페이지
-//		// 7 8 9
-//		// 보여지는 페이지 갯수 3개
-//		// 총 페이지 갯수 8개
-//
-//		model.addAttribute("noticeBoardList", noticeBoardList);
-//		model.addAttribute("startPage", startPage);
-//		model.addAttribute("endPage", endPage);
-//
-//		return "noticeboard/paging.html";
-//
-//	}
 	
 	@GetMapping("/paging")
 	public String paging(@PageableDefault(page = 1) Pageable pageable,
