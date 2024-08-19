@@ -78,7 +78,8 @@ public class UserController {
 			session.setAttribute("nickname", loginResult.getNickname());
 			session.setAttribute("role", loginResult.getRole());
 			session.setAttribute("userSeq", loginResult.getSeq());
-
+	        // 로그로 role 값 확인
+	        System.out.println("User Role in session: " + session.getAttribute("role"));
 			if (rememberId) {
 				// 아이디 저장 쿠키 설정
 				Cookie cookie = new Cookie("rememberedId", loginResult.getLoginid());
@@ -128,10 +129,9 @@ public class UserController {
 	}
 
 	@GetMapping("/user/delete/{seq}")
-	public String deleteBySeq(@PathVariable Long seq, HttpSession session) {
+	public String deleteBySeq(@PathVariable Long seq) {
 		userService.deleteBySeq(seq);
-		session.invalidate();
-		return "redirect:/";
+		return "redirect:/user/userList";
 	}
 
 	@GetMapping("/user/logout")

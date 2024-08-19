@@ -309,6 +309,55 @@
 			/*배경색*/
 			border-radius: 30px
 		}
+
+/* 인기글 제목 스타일 */
+.sidebar-box .heading a {
+    font-size: 16px; /* 제목의 글자 크기 */
+    font-weight: normal;
+    color: #333; /* 제목의 글자 색상 */
+    text-decoration: none; /* 링크 밑줄 제거 */
+}
+.sidebar-box .heading {
+	margin-bottom: 3px;
+}
+.sidebar-box .block-21 {
+    margin-bottom: 15px; /* 인기글 항목 간의 간격 설정 */
+    padding-bottom: 10px; /* 아래쪽에 패딩 추가 */
+    border-bottom: 1px solid #ddd; /* 선택적으로, 항목 간의 구분선을 추가 */
+}
+
+.sidebar-box .heading a:hover {
+    color: #6c63ff; /* 제목에 마우스를 올렸을 때 색상 */
+}
+
+
+/* 날짜와 닉네임 스타일 */
+.sidebar-box .meta {
+    font-size: 14px; /* 날짜와 닉네임 글자 크기 */
+    color: #666; /* 날짜와 닉네임 글자 색상 */
+}
+
+.sidebar-box .meta .icon-calendar,
+.sidebar-box .meta .icon-person {
+    margin-right: 5px; /* 아이콘과 텍스트 사이의 간격 */
+    color: #999; /* 아이콘 색상 */
+}
+
+.sidebar-box .meta div {
+    display: flex; /* 아이콘과 텍스트를 한 줄에 배치 */
+    align-items: center; /* 수직 중앙 정렬 */
+    margin-bottom: 5px; /* 아래쪽 여백 */
+}
+
+/* 추천 수 스타일 */
+.sidebar-box .meta span:nth-child(3) {
+    font-weight: normal;
+}
+
+.sidebar-box .text {
+    margin-bottom: 20px; /* 아래쪽 여백 */
+}
+
 	</style>
 </head>
 
@@ -323,10 +372,10 @@
 
 							<select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
 								<option value="" th:selected="${currentTag == null}">전체</option>
-					            <option value="FAQ">FAQ</option>
-					            <option value="이벤트">이벤트</option>
-					            <option value="점검">점검</option>
-					            <option value="일반공지">일반공지</option>
+								<option value="FAQ">FAQ</option>
+								<option value="이벤트">이벤트</option>
+								<option value="점검">점검</option>
+								<option value="일반공지">일반공지</option>
 							</select>
 
 						</form>
@@ -378,35 +427,42 @@
 							</tbody>
 						</table>
 					</h2>
-<div class="pagination">
-    <!-- << 링크: 첫 페이지가 아닐 경우에만 표시 -->
-    <span th:if="${!noticeBoardList.first}">
-        <a th:href="@{/noticeboard/paging(page=1, search=${searchKeyword})}"><<</a>
-    </span>
+					<div class="pagination">
+						<!-- << 링크: 첫 페이지가 아닐 경우에만 표시 -->
+						<span th:if="${!noticeBoardList.first}">
+							<a th:href="@{/noticeboard/paging(page=1, search=${searchKeyword})}">
+								<<< /a>
+						</span>
 
-    <!-- < 링크: 첫 페이지가 아닐 경우에만 표시 -->
-    <span th:if="${!noticeBoardList.first}">
-        <a th:href="@{/noticeboard/paging(page=${noticeBoardList.number}, search=${searchKeyword})}"><</a>
-    </span>
+						<!-- < 링크: 첫 페이지가 아닐 경우에만 표시 -->
+						<span th:if="${!noticeBoardList.first}">
+							<a
+								th:href="@{/noticeboard/paging(page=${noticeBoardList.number}, search=${searchKeyword})}">
+								<< /a>
+						</span>
 
-    <!-- 페이지 번호 -->
-    <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
-        <span th:if="${page == noticeBoardList.number + 1}" th:text="${page}" class="current-page"></span>
-        <span th:unless="${page == noticeBoardList.number + 1}">
-            <a th:href="@{/noticeboard/paging(page=${page}, search=${searchKeyword})}" th:text="${page}"></a>
-        </span>
-    </span>
+						<!-- 페이지 번호 -->
+						<span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+							<span th:if="${page == noticeBoardList.number + 1}" th:text="${page}"
+								class="current-page"></span>
+							<span th:unless="${page == noticeBoardList.number + 1}">
+								<a th:href="@{/noticeboard/paging(page=${page}, search=${searchKeyword})}"
+									th:text="${page}"></a>
+							</span>
+						</span>
 
-    <!-- > 링크: 마지막 페이지가 아닐 경우에만 표시 -->
-    <span th:if="${!noticeBoardList.last}">
-        <a th:href="@{/noticeboard/paging(page=${noticeBoardList.number + 2}, search=${searchKeyword})}">></a>
-    </span>
+						<!-- > 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+						<span th:if="${!noticeBoardList.last}">
+							<a
+								th:href="@{/noticeboard/paging(page=${noticeBoardList.number + 2}, search=${searchKeyword})}">></a>
+						</span>
 
-    <!-- >> 링크: 마지막 페이지가 아닐 경우에만 표시 -->
-    <span th:if="${!noticeBoardList.last}">
-        <a th:href="@{/noticeboard/paging(page=${noticeBoardList.totalPages}, search=${searchKeyword})}">>></a>
-    </span>
-</div>
+						<!-- >> 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+						<span th:if="${!noticeBoardList.last}">
+							<a
+								th:href="@{/noticeboard/paging(page=${noticeBoardList.totalPages}, search=${searchKeyword})}">>></a>
+						</span>
+					</div>
 					<a href="/noticeboard/save" class="btn" th:if="${session.role == 'admin'}">글작성</a>
 				</div>
 				<div class="col-md-3 sidebar ftco-animate">
@@ -421,7 +477,7 @@
 					<div class="sidebar-box ftco-animate">
 						<h3>인기글</h3>
 						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}"
-							class="block-21 mb-4 d-flex">
+							>
 							<div class="text">
 								<h3 class="heading">
 									<a th:href="@{/noticeboard/{seq}(seq=${popularPost.seq})}"
@@ -560,11 +616,11 @@
 	});
 
 	$(document).ready(function () {
-		// 전체글에서 제목이 10글자 이상이면 잘라내고 "..."을 추가
+		// 전체글에서 제목이 12글자 이상이면 잘라내고 "..."을 추가
 		$('table.board tbody tr td a').each(function () {
 			var text = $(this).text();
-			if (text.length > 10) {
-				var truncated = text.substring(0, 8) + '...';
+			if (text.length > 12) {
+				var truncated = text.substring(0, 12) + '...';
 				$(this).text(truncated);
 			}
 		});
