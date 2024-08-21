@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+
+  web:
+    container_name: web
+    image: kite01/dob
+    restart: always
+    ports:
+      - '80:8080'
+    depends_on:
+      - db
+  db:
+    image: mysql
+    restart: always
+    container_name: db
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_DATABASE: 'dob'
+      MYSQL_ROOT_PASSWORD: '0000'
+      MYSQL_TCP_PORT: '3306'
+      MYSQL_DATA_DIR: /var/lib/mysql
+    volumes:
+      - ./mysql:/var/lib/mysql
