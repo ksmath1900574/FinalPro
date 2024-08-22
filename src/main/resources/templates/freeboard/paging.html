@@ -287,6 +287,7 @@ select[name="tag"] {
                         <option value="동물" ${currentTag=='동물' ? 'selected' : '' }>동물</option>
                         <option value="질문" ${currentTag=='질문' ? 'selected' : '' }>질문</option>
                         <option value="꿀팁" ${currentTag=='꿀팁' ? 'selected' : '' }>꿀팁</option>
+                        <option value="잡담" ${currentTag=='잡담' ? 'selected' : '' }>잡담</option>
                     </select>
                 </form>
 <form action="#" class="search-form" id="searchForm">
@@ -332,17 +333,33 @@ select[name="tag"] {
                 </table>
             </h2>
 <div class="pagination">
-    <a th:href="@{/freeboard/paging(page=1, tag=${currentTag}, search=${searchKeyword})}"><<</a>
-    <a th:href="${freeBoardList.first} ? '#' : @{/freeboard/paging(page=${freeBoardList.number}, tag=${currentTag}, search=${searchKeyword})}"><</a>
+    <!-- << 링크: 첫 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.first}">
+        <a th:href="@{/freeboard/paging(page=1, search=${searchKeyword})}"><<</a>
+    </span>
+
+    <!-- < 링크: 첫 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.first}">
+        <a th:href="@{/freeboard/paging(page=${freeBoardList.number}, search=${searchKeyword})}"><</a>
+    </span>
+
+    <!-- 페이지 번호 -->
     <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
         <span th:if="${page == freeBoardList.number + 1}" th:text="${page}" class="current-page"></span>
-
         <span th:unless="${page == freeBoardList.number + 1}">
-            <a th:href="@{/freeboard/paging(page=${page}, tag=${currentTag}, search=${searchKeyword})}" th:text="${page}"></a>
+            <a th:href="@{/freeboard/paging(page=${page}, search=${searchKeyword})}" th:text="${page}"></a>
         </span>
     </span>
-    <a th:href="${freeBoardList.last} ? '#' : @{/freeboard/paging(page=${freeBoardList.number + 2}, tag=${currentTag}, search=${searchKeyword})}">></a>
-    <a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages}, tag=${currentTag}, search=${searchKeyword})}">>></a>
+
+    <!-- > 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.last}">
+        <a th:href="@{/freeboard/paging(page=${freeBoardList.number + 2}, search=${searchKeyword})}">></a>
+    </span>
+
+    <!-- >> 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.last}">
+        <a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages}, search=${searchKeyword})}">>></a>
+    </span>
 </div>
             <a href="/freeboard/save" class="btn">글작성</a>
         </div>
@@ -352,7 +369,7 @@ select[name="tag"] {
                             <h3>속닥속닥</h3>
                             <li><a href="/freeboard/paging" class = "active">자유게시판 <span></span></a></li>
                             <li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
-                            <li><a href="/noriceboard/paging">공지사항 <span></span></a></li>
+                            <li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
                         </div>
                     </div>
 					<div class="sidebar-box ftco-animate">
@@ -508,11 +525,11 @@ function renderBoardList(boardData) {
     });
     
     $(document).ready(function () {
-    // 전체글에서 제목이 10글자 이상이면 잘라내고 "..."을 추가
+    // 전체글에서 제목이 12글자 이상이면 잘라내고 "..."을 추가
     $('table.board tbody tr td a').each(function () {
         var text = $(this).text();
-        if (text.length > 10) {
-            var truncated = text.substring(0, 8) + '...';
+        if (text.length > 12) {
+            var truncated = text.substring(0, 12) + '...';
             $(this).text(truncated);
         }
     });
