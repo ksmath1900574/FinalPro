@@ -12,7 +12,7 @@ import com.example.myweb.interceptor.LoginInterceptor;
 public class WebConfig implements WebMvcConfigurer {
     private static final String RESOURCE_PATH = "/upload/**";
 //    private static final String SAVE_PATH = "classpath:/static/upload/";
-    private static final String SAVE_PATH = "file:///C:/upload/"; // 실제 파일 저장 위치
+    private static final String SAVE_PATH = "file:///DoB/uploads/"; // 실제 파일 저장 위치
     
     private final LoginInterceptor loginInterceptor;
 
@@ -24,8 +24,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/freeboard/**")
-                .excludePathPatterns("/login", "/signup", "/css/**", "/js/**", "/freeboard/paging", "/freeboard/*");
+                .addPathPatterns("/freeboard/save", "/biticboard/save", "/noticeboard/save")
+                .excludePathPatterns("/login", "/signup", "/css/**", "/js/**");
     }
 
     @Override
