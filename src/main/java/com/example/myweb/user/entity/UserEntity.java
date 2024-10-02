@@ -1,5 +1,6 @@
 package com.example.myweb.user.entity;
 
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -122,3 +123,8 @@ public class UserEntity {
 	}
 
 }
+=======
+public class UserEntity {
+
+}
+>>>>>>> 7bc0d8f8e465af84b641a24a58aa42eb04c1c9d5

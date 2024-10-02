@@ -1,5 +1,6 @@
 package com.example.myweb.user.repository;
 
+<<<<<<< HEAD
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,3 +20,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>{
 
 
 }
+=======
+public class UserRepository {
+
+}
+>>>>>>> 7bc0d8f8e465af84b641a24a58aa42eb04c1c9d5

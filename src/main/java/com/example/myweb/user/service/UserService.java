@@ -1,5 +1,6 @@
 package com.example.myweb.user.service;
 
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -226,3 +227,8 @@ public class UserService {
     }
 
 }
+=======
+public class UserService {
+
+}
+>>>>>>> 7bc0d8f8e465af84b641a24a58aa42eb04c1c9d5

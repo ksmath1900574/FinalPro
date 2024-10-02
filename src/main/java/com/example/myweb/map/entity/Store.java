@@ -1,5 +1,6 @@
 package com.example.myweb.map.entity;
 
+<<<<<<< HEAD
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -56,4 +57,8 @@ public class Store {
         this.tags = tags;
         this.reviews = reviews;
     }
+=======
+public class Store {
+
+>>>>>>> 7bc0d8f8e465af84b641a24a58aa42eb04c1c9d5
 }
